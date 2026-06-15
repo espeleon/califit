@@ -1,1284 +1,1244 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CaliFit — Entrena con tu cuerpo</title>
+<title>CaliFit</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--border:#272727;--acc:#d9501a;--acc2:#f2784b;--white:#f5f2ed;--muted:#777;--ok:#4caf7d;--warn:#e8a427;--danger:#e85d5d}
+:root{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--border:#2a2a2a;--acc:#d9501a;--acc2:#f2784b;--white:#f5f2ed;--muted:#8a8a8a;--ok:#4caf7d;--warn:#e8a427;--danger:#e85d5d}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.6}
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
 .screen{display:none;min-height:100vh}.screen.active{display:block}
-/* BAR */
-.bar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.5rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100}
-.logo{font-family:'Bebas Neue',cursive;font-size:1.7rem;letter-spacing:3px}.logo span{color:var(--acc)}
-.tabs{display:flex;gap:3px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s;white-space:nowrap;flex-shrink:0}
-.tab.on{background:var(--acc);color:#fff}.tab:hover:not(.on){color:var(--white);background:var(--bg3)}
-/* BOTTOM NAV (mobile) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-.bottom-nav-inner{display:flex}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.6rem .25rem .5rem;background:transparent;border:none;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:500;text-transform:uppercase;letter-spacing:.3px;gap:3px;transition:color .2s}
-.bnav-btn.on{color:var(--acc)}
-.bnav-icon{font-size:1.3rem;line-height:1}
-/* add padding to screen content on mobile so bottom nav doesn't overlap */
-@media(max-width:600px){
-  .bottom-nav{display:block}
-  .bar nav.tabs{display:none}
-  #sd .wrap{padding-bottom:5rem}
-}
-/* BTNS */
-.btn{background:var(--acc);color:#fff;border:none;padding:13px 30px;border-radius:2px;font-size:.95rem;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'DM Sans',sans-serif;transition:background .2s}
-.btn:hover{background:var(--acc2)}.btn:disabled{opacity:.35;cursor:not-allowed}
-.btn2{background:transparent;color:var(--white);border:1px solid var(--border);padding:11px 26px;border-radius:2px;font-size:.88rem;font-weight:500;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'DM Sans',sans-serif;transition:all .2s;margin-left:10px}
-.btn2:hover{border-color:var(--muted)}
-/* WELCOME */
-.hero{padding:3rem 2rem 2rem;max-width:700px;margin:0 auto}
-.htitle{font-family:'Bebas Neue',cursive;font-size:clamp(3.5rem,10vw,6rem);line-height:.9;letter-spacing:2px}
-.htitle .hl{color:var(--acc)}.tagline{color:var(--muted);font-size:1rem;margin:1.5rem 0 2.5rem;font-weight:300}
-/* ONBOARDING */
-.onb{max-width:600px;margin:0 auto;padding:2.5rem 1.5rem}
-.dots{display:flex;gap:6px;margin-bottom:2.5rem}
-.dot{width:28px;height:4px;border-radius:2px;background:var(--border);transition:background .3s}
-.dot.done{background:var(--acc)}.dot.cur{background:var(--acc2)}
-.qlabel{font-family:'Bebas Neue',cursive;font-size:1.7rem;letter-spacing:1px;margin-bottom:.4rem}
-.qsub{font-size:.84rem;color:var(--muted);margin-bottom:1.4rem}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.opt{padding:1rem;border:1px solid var(--border);border-radius:4px;background:var(--bg2);color:var(--white);cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;font-size:.9rem;transition:all .2s}
-.opt:hover{border-color:var(--muted)}.opt.sel{border-color:var(--acc);background:rgba(217,80,26,.12)}
-.opt .ot{font-weight:600;margin-bottom:4px}.opt .od{font-size:.77rem;color:var(--muted);font-weight:300}
-.drow{display:flex;gap:10px;flex-wrap:wrap}
-.dbtn{width:52px;height:52px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;transition:all .2s}
-.dbtn.sel{border-color:var(--acc);background:rgba(217,80,26,.15);color:var(--acc)}
-.ninp{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--white);padding:1rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:1rem}
-.ninp:focus{outline:none;border-color:var(--acc)}.navrow{display:flex;gap:12px;margin-top:2rem}
-/* LAYOUT */
-.wrap{max-width:700px;margin:0 auto;padding:1.5rem}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem 1.5rem;margin-bottom:.75rem}
-.pcard{display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap}
-.avatar{width:58px;height:58px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.7rem;color:#fff;flex-shrink:0}
-.pname{font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:1px}
-.pmeta{font-size:.82rem;color:var(--muted);margin-top:4px}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;background:rgba(217,80,26,.2);color:var(--acc);border:1px solid rgba(217,80,26,.3)}
-.badge.red{background:rgba(232,93,93,.15);color:var(--danger);border-color:rgba(232,93,93,.3)}
-.badge.warn{background:rgba(232,164,39,.15);color:var(--warn);border-color:rgba(232,164,39,.3)}
-/* STATS */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:1.5rem}
-.sbox{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1rem;text-align:center}
-.snum{font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--acc)}
-.slbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.stitle{font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.5rem;margin-top:1.5rem}
-.stitle:first-child{margin-top:0}
-/* WEEK BLOCK */
-.week-block{background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:.5rem;overflow:hidden}
-.week-hdr{padding:.9rem 1.2rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:background .15s}
-.week-hdr:hover{background:rgba(255,255,255,.02)}
-.week-num{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--acc);width:50px;flex-shrink:0}
-.week-info{flex:1}
-.week-title{font-weight:600;font-size:.9rem}
-.week-sub{font-size:.78rem;color:var(--muted);margin-top:2px}
-.week-body{display:none;border-top:1px solid var(--border)}
-.week-body.open{display:block}
-/* DAY TABS */
-.day-tabs-row{display:flex;gap:0;border-bottom:1px solid var(--border)}
-.day-tab{flex:1;padding:.7rem .5rem;text-align:center;font-size:.75rem;font-weight:600;cursor:pointer;color:var(--muted);border-right:1px solid var(--border);transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
-.day-tab:last-child{border-right:none}
-.day-tab.on{background:rgba(217,80,26,.12);color:var(--acc)}
-.day-tab:hover:not(.on){background:rgba(255,255,255,.03);color:var(--white)}
-.day-content{display:none;padding:1rem 1.2rem}
-.day-content.on{display:block}
-/* EXERCISE ROW IN PLAN */
-.ex-row{padding:.65rem 0;border-bottom:1px solid var(--border);display:flex;gap:.75rem;align-items:flex-start}
-.ex-row:last-child{border-bottom:none}
-.ex-row-tag{font-size:.68rem;padding:2px 7px;border-radius:20px;border:1px solid var(--border);color:var(--muted);flex-shrink:0;margin-top:2px;white-space:nowrap}
-.ex-row-tag.push{border-color:rgba(217,80,26,.4);color:var(--acc2)}
-.ex-row-tag.pull{border-color:rgba(76,175,125,.4);color:var(--ok)}
-.ex-row-tag.legs{border-color:rgba(232,164,39,.4);color:var(--warn)}
-.ex-row-tag.core{border-color:rgba(150,120,255,.4);color:#b8a4ff}
-.ex-row-body{flex:1}
-.ex-row-name{font-weight:600;font-size:.87rem}
-.ex-row-detail{font-size:.78rem;color:var(--muted);margin-top:2px}
-.ex-row-method{font-size:.72rem;margin-top:3px}
-.method-pyr{color:#ffd700}.method-sup{color:var(--acc2)}.method-ser{color:var(--ok)}.method-hiit{color:var(--danger)}.method-extra{color:var(--muted)}
-.go-btn{background:var(--acc);color:#fff;border:none;padding:10px 20px;border-radius:2px;font-size:.78rem;font-weight:700;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;font-family:'DM Sans',sans-serif;width:100%;margin-top:1rem;transition:background .2s}
-.go-btn:hover{background:var(--acc2)}
-.done-today-banner{background:rgba(76,175,125,.08);border:1px solid rgba(76,175,125,.3);border-radius:4px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:.83rem;color:var(--ok);display:flex;align-items:center;gap:.5rem}
-/* LEVEL UP */
-.lvlup-banner{background:rgba(76,175,125,.09);border:1px solid rgba(76,175,125,.35);border-radius:4px;padding:1rem 1.2rem;margin-bottom:.75rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-.lvlup-title{font-weight:700;font-size:.88rem;color:var(--ok)}
-.lvlup-sub{font-size:.78rem;color:var(--muted);margin-top:2px}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(76,175,125,.4)}50%{box-shadow:0 0 0 6px rgba(76,175,125,0)}}
-.btn-uplvl{background:rgba(76,175,125,.15);color:var(--ok);border:1px solid rgba(76,175,125,.5);padding:7px 14px;border-radius:2px;font-size:.78rem;font-weight:700;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;font-family:'DM Sans',sans-serif;transition:all .2s;animation:pulse 2s infinite;white-space:nowrap}
-.btn-uplvl:hover{background:rgba(76,175,125,.25)}
-.btn-dismiss{background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 12px;border-radius:2px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
-/* CALENDAR */
-.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.cal-month{font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:2px}
-.cal-btn{background:transparent;border:1px solid var(--border);color:var(--white);padding:4px 12px;border-radius:2px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem}
-.cal-btn:hover{border-color:var(--muted)}
-.cal-header{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px}
-.cal-dow{text-align:center;font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:1rem}
-.cal-day{aspect-ratio:1;border-radius:4px;border:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:500}
-.cal-day.trained{background:rgba(217,80,26,.2);border-color:rgba(217,80,26,.5);color:var(--acc2)}
-.cal-day.today{border-color:var(--white);color:var(--white);font-weight:700}
-.cal-day.empty{background:transparent;border-color:transparent}
-.cal-legend{display:flex;gap:16px;font-size:.75rem;color:var(--muted);margin-bottom:1.5rem;flex-wrap:wrap}
-.cal-legend span{display:flex;align-items:center;gap:5px}
-.legend-dot{width:10px;height:10px;border-radius:2px}
-/* PROGRESS */
-.prog-section{margin-bottom:2.5rem}
-.prog-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
-.prog-name{font-weight:600;font-size:.9rem}
-.prog-bg{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:.75rem}
-.prog-fill{height:100%;border-radius:3px;background:var(--acc);transition:width .5s}
-/* LEVEL CARDS */
-.lvl-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.8rem 1rem;margin-bottom:.45rem;display:flex;align-items:center;gap:.85rem;transition:border-color .2s}
-.lvl-card.cur{border-color:var(--acc);background:rgba(217,80,26,.05)}
-.lvl-card.done{border-color:rgba(76,175,125,.3);opacity:.6}
-.lvl-card.done .lvl-n{color:var(--ok)}
-.lvl-card.locked{opacity:.35}
-.lvl-n{font-family:'Bebas Neue',cursive;font-size:1.7rem;color:var(--acc);width:32px;text-align:center;flex-shrink:0}
-.lvl-info{flex:1;min-width:0}
-.lvl-name{font-weight:600;font-size:.85rem}
-.lvl-req{font-size:.73rem;color:var(--muted);margin-top:1px}
-.lvl-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
-.lvl-time{font-size:.68rem;color:var(--warn);background:rgba(232,164,39,.1);border:1px solid rgba(232,164,39,.2);padding:2px 7px;border-radius:20px;white-space:nowrap}
-/* THE MAIN "ESTOY AQUÍ" BUTTON */
-.btn-here{background:rgba(217,80,26,.12);color:var(--acc);border:1px solid rgba(217,80,26,.45);padding:6px 12px;border-radius:2px;font-size:.72rem;font-weight:700;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
-.btn-here:hover{background:rgba(217,80,26,.25)}
-.btn-here.is-cur{background:rgba(217,80,26,.2);border-color:var(--acc);color:var(--acc2);cursor:default}
-/* SESSION VIEW */
-.backbtn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;display:flex;align-items:center;gap:6px;margin-bottom:1.5rem;padding:0}
-.backbtn:hover{color:var(--white)}
-.sess-title{font-family:'Bebas Neue',cursive;font-size:2.2rem;letter-spacing:2px}
-.sess-obj{display:inline-block;margin-top:8px;padding:4px 14px;border:1px solid var(--acc);border-radius:20px;font-size:.78rem;color:var(--acc);text-transform:uppercase;letter-spacing:1px}
-.warmup{background:rgba(232,164,39,.07);border:1px solid rgba(232,164,39,.2);border-radius:4px;padding:1rem 1.25rem;margin:1.4rem 0}
-.wu-title{font-weight:600;font-size:.8rem;color:var(--warn);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
-.wu-list{font-size:.83rem;color:var(--muted);list-style:none}
-.wu-list li{padding:3px 0}.wu-list li::before{content:"▸ ";color:var(--warn)}
-.inj-alert{background:rgba(232,93,93,.07);border:1px solid rgba(232,93,93,.2);border-radius:4px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.82rem;color:rgba(232,93,93,.9)}
-.exblock{background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:.9rem;overflow:hidden;transition:border-color .2s}
-.exblock.completed{border-color:var(--ok)}
-.exhdr{padding:.95rem 1.2rem;display:flex;align-items:center;gap:1rem;cursor:pointer}
-.exnum{width:32px;height:32px;border-radius:2px;flex-shrink:0;background:rgba(217,80,26,.15);border:1px solid rgba(217,80,26,.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--acc)}
-.exblock.completed .exnum{background:rgba(76,175,125,.15);border-color:var(--ok);color:var(--ok)}
-.exinfo{flex:1}.exname{font-weight:600;font-size:.93rem}.expresc{font-size:.78rem;color:var(--muted);margin-top:2px}
-.exlvl{font-size:.7rem;padding:2px 8px;border-radius:20px;border:1px solid var(--border);color:var(--muted);flex-shrink:0}
-.extog{color:var(--muted);font-size:1.3rem;flex-shrink:0;transition:transform .2s}.extog.open{transform:rotate(90deg)}
-.exdetail{display:none;padding:0 1.2rem 1.2rem;border-top:1px solid var(--border)}.exdetail.open{display:block}
-.exmuscle{font-size:.8rem;color:var(--acc2);margin:.75rem 0 .25rem}
-.exdesc{font-size:.83rem;color:#aaa;line-height:1.7;margin-bottom:.9rem}
-.inj-warn{background:rgba(232,93,93,.07);border-left:3px solid var(--danger);padding:.55rem .85rem;margin:.4rem 0 .8rem;font-size:.79rem;color:rgba(232,93,93,.85);border-radius:0 4px 4px 0}
-.vid-outer{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:4px;margin-bottom:.9rem;background:#000}
-.vid-outer iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
-.vid-link{display:flex;align-items:center;justify-content:center;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:.9rem;gap:.75rem;text-decoration:none;color:var(--acc2);font-size:.84rem;transition:background .2s}
-.vid-link:hover{background:rgba(217,80,26,.08)}
-.donebtn{width:100%;padding:10px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:2px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;transition:all .2s}
-.donebtn:hover{border-color:var(--ok);color:var(--ok)}.donebtn.ok{background:rgba(76,175,125,.1);border-color:var(--ok);color:var(--ok)}
-.complete-sess{width:100%;padding:15px;background:var(--acc);color:#fff;border:none;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:2rem;transition:background .2s}
-.complete-sess:hover{background:var(--acc2)}.complete-sess:disabled{opacity:.35;cursor:not-allowed}
-/* HISTORY */
-.hentry{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1rem 1.2rem;margin-bottom:.6rem;display:flex;align-items:center;gap:1rem}
-.hdate{font-family:'Bebas Neue',cursive;font-size:1.5rem;color:var(--acc);line-height:1;min-width:38px;text-align:center}
-.hdate small{display:block;font-size:.63rem;letter-spacing:1px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;text-transform:uppercase}
-.hinfo{flex:1}.htit{font-weight:600;font-size:.88rem}.hmeta{font-size:.78rem;color:var(--muted);margin-top:2px}
-.empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
-/* RUNNING */
-.rtip{background:rgba(76,175,125,.07);border:1px solid rgba(76,175,125,.2);border-radius:4px;padding:1rem 1.2rem;margin-bottom:1.4rem;font-size:.84rem;color:rgba(76,175,125,.9)}
-.rtip strong{display:block;margin-bottom:4px}
-.rweek{background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:.65rem;overflow:hidden}
-.rwhdr{padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;cursor:pointer}
-.rwnum{font-family:'Bebas Neue',cursive;font-size:1.5rem;color:var(--acc);width:56px}
-.rwbody{display:none;padding:0 1.2rem 1.2rem;border-top:1px solid var(--border)}.rwbody.open{display:block}
-.rday{padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;font-size:.81rem}.rday:last-child{border-bottom:none}
-.rdlbl{font-weight:600;min-width:90px;color:var(--muted)}
-/* MODAL */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;padding:1rem}
-.modal.show{display:flex}
-.mbox{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:2rem;max-width:420px;width:100%;text-align:center}
-.mico{font-size:3rem;margin-bottom:1rem}.mtit{font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:2px;margin-bottom:.5rem}
-.mtxt{color:var(--muted);font-size:.88rem;margin-bottom:1.5rem;line-height:1.6}
-.mbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-/* TOAST */
-.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--ok);color:#fff;padding:.75rem 1.5rem;border-radius:4px;font-size:.88rem;font-weight:600;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.2rem;background:rgba(15,15,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.brand{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:2px;color:var(--white)}
+.brand span{color:var(--acc)}
+.langbtn{background:var(--bg2);border:1px solid var(--border);color:var(--white);padding:5px 12px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:.15s}
+.langbtn:hover{border-color:var(--acc);color:var(--acc)}
+.wrap{max-width:680px;margin:0 auto;padding:1.2rem 1.1rem 5.5rem}
+.hero{text-align:center;padding:3rem 1.2rem 2rem}
+.hero h1{font-family:'Bebas Neue',cursive;font-size:3.4rem;letter-spacing:1px;line-height:1;margin-bottom:.4rem}
+.hero h1 span{color:var(--acc)}
+.hero p{color:var(--muted);font-size:1rem;margin-bottom:2rem;max-width:340px;margin-left:auto;margin-right:auto}
+.btn{display:inline-block;background:var(--acc);color:#fff;border:none;padding:.85rem 2rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none}
+.btn:hover{background:var(--acc2)}
+.btn.full{display:block;width:100%;text-align:center}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--white)}
+.btn.ghost:hover{border-color:var(--acc);color:var(--acc);background:transparent}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;margin-bottom:.9rem}
+.q-title{font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:1px;margin-bottom:.3rem}
+.q-sub{color:var(--muted);font-size:.86rem;margin-bottom:1.2rem}
+.opt{display:block;width:100%;text-align:left;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:.9rem 1rem;margin-bottom:.6rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.92rem;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--muted)}
+.opt.sel{border-color:var(--acc);background:rgba(217,80,26,.1)}
+.opt-t{font-weight:600;display:block}
+.opt-d{color:var(--muted);font-size:.8rem;margin-top:.15rem}
+.dayrow{display:flex;gap:.5rem;flex-wrap:wrap}
+.daypill{flex:1;min-width:60px;text-align:center;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:.8rem;cursor:pointer;font-weight:600;transition:.12s}
+.daypill.sel{border-color:var(--acc);background:rgba(217,80,26,.1);color:var(--acc)}
+.inp{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:.85rem 1rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.95rem}
+.inp:focus{outline:none;border-color:var(--acc)}
+.nav-dots{display:flex;gap:.4rem;justify-content:center;margin:1.5rem 0}
+.ndot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:.2s}
+.ndot.on{background:var(--acc);width:22px;border-radius:4px}
+.stepnav{display:flex;gap:.7rem;margin-top:1.5rem}
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:rgba(22,22,22,.96);backdrop-filter:blur(10px);border-top:1px solid var(--border)}
+.tabitem{flex:1;text-align:center;padding:.55rem 0 .7rem;cursor:pointer;color:var(--muted);font-size:.66rem;font-weight:500;transition:.12s;border:none;background:none;font-family:'DM Sans',sans-serif}
+.tabitem.on{color:var(--acc)}
+.tabitem .ic{display:block;font-size:1.25rem;margin-bottom:.1rem}
+.sec-title{font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;margin:1.4rem 0 .7rem}
+.profile-card{display:flex;align-items:center;gap:.9rem;background:linear-gradient(135deg,rgba(217,80,26,.14),rgba(217,80,26,.04));border:1px solid rgba(217,80,26,.25);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem}
+.avatar{width:48px;height:48px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.5rem;color:#fff;flex-shrink:0}
+.profile-info h3{font-size:1.05rem;font-weight:700}
+.profile-info p{color:var(--muted);font-size:.8rem}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:.5rem}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.75rem;text-align:center}
+.stat .n{font-family:'Bebas Neue',cursive;font-size:1.7rem;color:var(--acc);line-height:1}
+.stat .l{color:var(--muted);font-size:.68rem;margin-top:.2rem;text-transform:uppercase;letter-spacing:.5px}
+.week{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:.7rem;overflow:hidden}
+.week-h{display:flex;align-items:center;gap:.8rem;padding:.95rem 1rem;cursor:pointer}
+.week-badge{background:var(--acc);color:#fff;font-family:'Bebas Neue',cursive;font-size:.95rem;letter-spacing:1px;padding:.25rem .6rem;border-radius:6px;flex-shrink:0}
+.week-tt{flex:1;font-weight:700;font-size:.92rem}
+.week-tt small{display:block;color:var(--muted);font-weight:400;font-size:.74rem;margin-top:.1rem}
+.chev{color:var(--muted);transition:.2s;font-size:1.1rem}
+.week.open .chev{transform:rotate(90deg)}
+.week-body{display:none;border-top:1px solid var(--border);padding:.4rem}
+.week.open .week-body{display:block}
+.daytab-row{display:flex;gap:.3rem;margin-bottom:.5rem;flex-wrap:wrap}
+.daytab{flex:1;min-width:55px;text-align:center;padding:.45rem;background:var(--bg3);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:.76rem;font-weight:600;color:var(--muted)}
+.daytab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.dayinfo{padding:.5rem .6rem;background:var(--bg3);border-radius:8px;margin-bottom:.55rem;font-size:.78rem;color:var(--muted)}
+.dayinfo b{color:var(--white);display:block;margin-bottom:.2rem;font-size:.84rem}
+.exitem{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem .3rem;border-bottom:1px solid var(--border)}
+.exitem:last-child{border-bottom:none}
+.extag{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:.2rem .45rem;border-radius:5px;flex-shrink:0;margin-top:.1rem}
+.tag-push{background:rgba(217,80,26,.18);color:var(--acc2)}
+.tag-pull{background:rgba(76,175,125,.18);color:var(--ok)}
+.tag-legs{background:rgba(232,164,39,.18);color:var(--warn)}
+.tag-core{background:rgba(123,131,255,.18);color:#9aa0ff}
+.tag-extra{background:rgba(138,138,138,.16);color:var(--muted)}
+.exitem-b{flex:1}
+.exitem-n{font-size:.85rem;font-weight:600}
+.exitem-d{font-size:.75rem;color:var(--muted)}
+.startbtn{width:100%;margin-top:.6rem;background:var(--acc);color:#fff;border:none;padding:.7rem;border-radius:9px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer}
+.startbtn:hover{background:var(--acc2)}
+.backbtn{background:none;border:none;color:var(--acc);font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;padding:.3rem 0;margin-bottom:.6rem;font-weight:600}
+.sess-head{margin-bottom:1rem}
+.sess-head h2{font-family:'Bebas Neue',cursive;font-size:1.7rem;letter-spacing:1px}
+.sess-head p{color:var(--muted);font-size:.85rem}
+.method-box{background:rgba(232,164,39,.1);border:1px solid rgba(232,164,39,.3);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem}
+.method-box b{color:var(--warn);display:block;margin-bottom:.25rem}
+.exbig{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:.7rem;overflow:hidden}
+.exbig.done{border-color:var(--ok)}
+.exbig-h{display:flex;align-items:center;gap:.7rem;padding:.85rem 1rem;cursor:pointer}
+.exbig-num{width:30px;height:30px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+.exbig.done .exbig-num{background:var(--ok);color:#fff}
+.exbig-t{flex:1}
+.exbig-t .nm{font-weight:600;font-size:.9rem}
+.exbig-t .ds{color:var(--muted);font-size:.76rem}
+.exbig-body{display:none;padding:0 1rem 1rem;border-top:1px solid var(--border)}
+.exbig.open .exbig-body{display:block}
+.exbig-body .muscle{color:var(--acc2);font-size:.78rem;font-weight:600;margin:.7rem 0 .3rem}
+.exbig-body .desc{font-size:.83rem;color:#c5c5c5;margin-bottom:.6rem}
+.lvlbadge{display:inline-block;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.15rem .5rem;font-size:.72rem;color:var(--muted);margin-bottom:.5rem}
+.vidwrap{position:relative;width:100%;padding-bottom:56.25%;border-radius:8px;overflow:hidden;margin-bottom:.6rem}
+.vidwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.donebtn{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--white);padding:.6rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer}
+.donebtn.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.finishbtn{width:100%;background:var(--acc);color:#fff;border:none;padding:.9rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:.8rem}
+.finishbtn:disabled{opacity:.4;cursor:not-allowed}
+.warn-inj{background:rgba(232,93,93,.1);border:1px solid rgba(232,93,93,.3);border-radius:8px;padding:.55rem .8rem;margin:.4rem 0;font-size:.78rem;color:#f0a0a0}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
+.calhead button{background:var(--bg2);border:1px solid var(--border);color:var(--white);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:1.1rem}
+.calhead h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:1px}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem}
+.caldow{text-align:center;font-size:.66rem;color:var(--muted);font-weight:600;padding:.3rem 0}
+.calcell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:.8rem;background:var(--bg2);border:1px solid transparent}
+.calcell.empty{background:none}
+.calcell.has{background:var(--acc);color:#fff;font-weight:700}
+.calcell.today{border-color:var(--acc)}
+.prog-ex{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:.8rem}
+.prog-ex-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
+.prog-ex-h .nm{font-weight:700;font-size:.95rem}
+.prog-ex-h .lv{color:var(--acc);font-size:.78rem;font-weight:600}
+.lvlbar{display:flex;gap:.25rem;margin-bottom:.8rem}
+.lvlseg{flex:1;height:6px;border-radius:3px;background:var(--bg3)}
+.lvlseg.on{background:var(--acc)}
+.lvlrow{display:flex;align-items:center;gap:.6rem;padding:.5rem;border-radius:8px;cursor:pointer;transition:.12s}
+.lvlrow:hover{background:var(--bg3)}
+.lvlrow.cur{background:rgba(217,80,26,.12)}
+.lvlrow-n{width:24px;height:24px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0}
+.lvlrow.cur .lvlrow-n{background:var(--acc);color:#fff}
+.lvlrow-i{flex:1}
+.lvlrow-i .t{font-size:.82rem;font-weight:600}
+.lvlrow-i .r{font-size:.72rem;color:var(--muted)}
+.herebtn{background:var(--acc);color:#fff;border:none;padding:.3rem .7rem;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.herebtn.ghost{background:var(--bg3);color:var(--muted)}
+.histitem{display:flex;align-items:center;gap:.8rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;margin-bottom:.6rem}
+.histitem .dt{text-align:center;flex-shrink:0}
+.histitem .dt .d{font-family:'Bebas Neue',cursive;font-size:1.4rem;line-height:1;color:var(--acc)}
+.histitem .dt .m{font-size:.66rem;color:var(--muted);text-transform:uppercase}
+.histitem .info{flex:1}
+.histitem .info .t{font-weight:600;font-size:.85rem}
+.histitem .info .s{color:var(--muted);font-size:.75rem}
+.empty{text-align:center;color:var(--muted);padding:3rem 1rem;font-size:.9rem}
+.runweek{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:.6rem;overflow:hidden}
+.runweek-h{display:flex;align-items:center;gap:.7rem;padding:.85rem 1rem;cursor:pointer}
+.runweek-badge{background:var(--ok);color:#fff;font-family:'Bebas Neue',cursive;font-size:.85rem;padding:.2rem .55rem;border-radius:6px;flex-shrink:0}
+.runweek-t{flex:1;font-weight:600;font-size:.86rem}
+.runweek-t small{display:block;color:var(--muted);font-weight:400;font-size:.74rem}
+.runweek-body{display:none;padding:.4rem 1rem 1rem;border-top:1px solid var(--border);font-size:.82rem}
+.runweek.open .runweek-body{display:block}
+.runweek-body .row{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--border)}
+.runweek-body .row:last-child{border-bottom:none}
+.runweek-body .row .k{color:var(--muted)}
+.glossitem{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;margin-bottom:.55rem}
+.glossitem .term{font-weight:700;color:var(--acc2);font-size:.9rem;margin-bottom:.25rem}
+.glossitem .def{font-size:.82rem;color:#c5c5c5}
+.fbq{margin-bottom:1.3rem}
+.fbq label.qlbl{display:block;font-weight:600;font-size:.88rem;margin-bottom:.5rem}
+.fbopts{display:flex;flex-direction:column;gap:.4rem}
+.fbopt{display:flex;align-items:center;gap:.6rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:.65rem .9rem;cursor:pointer;font-size:.86rem}
+.fbopt.sel{border-color:var(--acc);background:rgba(217,80,26,.1)}
+.fbopt input{accent-color:var(--acc)}
+.stars{display:flex;gap:.3rem}
+.star{font-size:1.7rem;cursor:pointer;color:var(--border);transition:.1s}
+.star.on{color:var(--warn)}
+.fbtext{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:.7rem .9rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.88rem;resize:vertical;min-height:70px}
+.fbtext:focus{outline:none;border-color:var(--acc)}
+.toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--acc);color:var(--white);padding:.7rem 1.2rem;border-radius:10px;font-size:.85rem;z-index:100;opacity:0;transition:.3s;pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1}
-/* INFO BOX */
-.info-box{background:rgba(76,175,125,.07);border:1px solid rgba(76,175,125,.2);border-radius:4px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:.83rem;color:rgba(76,175,125,.9)}
-.info-box strong{display:block;margin-bottom:4px}
-.warn-box{background:rgba(232,164,39,.07);border:1px solid rgba(232,164,39,.2);border-radius:4px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:.83rem;color:rgba(232,164,39,.9)}
-.warn-box strong{display:block;margin-bottom:4px}
-/* FEEDBACK FORM */
-.fb-opt{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border:1px solid var(--border);border-radius:4px;background:var(--bg2);cursor:pointer;font-size:.87rem;transition:all .2s}
-.fb-opt:hover{border-color:var(--muted)}
-.fb-opt input[type=radio]{accent-color:var(--acc);width:16px;height:16px;flex-shrink:0;cursor:pointer}
-.fb-opt:has(input:checked){border-color:var(--acc);background:rgba(217,80,26,.1)}
-.fb-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--white);padding:.9rem 1rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:.87rem;resize:vertical;line-height:1.5}
-.fb-textarea:focus{outline:none;border-color:var(--acc)}
-.star-row{display:flex;gap:6px}
-.star-btn{background:transparent;border:none;font-size:2rem;color:var(--border);cursor:pointer;padding:0;transition:color .15s;line-height:1}
-.star-btn.lit{color:var(--warn)}
-.star-btn:hover{color:var(--warn)}
-@media(max-width:540px){.grid2{grid-template-columns:1fr}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:90;display:none;align-items:center;justify-content:center;padding:1.5rem}
+.modal.show{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;max-width:340px;width:100%;text-align:center}
+.modal-box .ic{font-size:2.5rem;margin-bottom:.5rem}
+.modal-box h3{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:1px;margin-bottom:.5rem}
+.modal-box p{color:var(--muted);font-size:.86rem;margin-bottom:1.2rem}
+.modal-btns{display:flex;gap:.6rem}
+.intro-box{background:rgba(76,175,125,.08);border:1px solid rgba(76,175,125,.25);border-radius:10px;padding:.9rem 1rem;margin-bottom:1rem;font-size:.83rem;color:#a8d8c0}
+.editlink{color:var(--acc);font-size:.78rem;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'DM Sans',sans-serif}
 </style>
 </head>
 <body>
-<h2 class="sr-only">CaliFit — App de calistenia progresiva</h2>
-<div id="app">
+<div class="topbar">
+  <div class="brand">CALI<span>FIT</span></div>
+  <button class="langbtn" id="langBtn" onclick="toggleLang()">ES</button>
+</div>
 
 <!-- WELCOME -->
-<div id="sw" class="screen active">
-  <div class="bar"><div class="logo">CALI<span>FIT</span></div></div>
+<div class="screen active" id="scr-welcome">
   <div class="hero">
-    <div class="htitle">ENTRENA<br>CON TU<br><span class="hl">CUERPO</span></div>
-    <p class="tagline">Calistenia progresiva por bloques de 10 semanas.<br>Sin máquinas. Sin gimnasio. Solo tú.</p>
-    <button class="btn" onclick="goOnb()">EMPEZAR</button>
-    <button class="btn2" onclick="tryLoad()">YA TENGO PERFIL</button>
+    <h1 data-i="hero_title">ENTRENA AMB EL <span>TEU COS</span></h1>
+    <p data-i="hero_sub">Programa de calistènia de 10 setmanes basat en el mètode Desencadenado. Sense gimnàs.</p>
+    <button class="btn" onclick="startOnboarding()" data-i="hero_start">Comença ara</button>
+    <div style="margin-top:.8rem">
+      <button class="btn ghost" onclick="loadSaved()" data-i="hero_load" id="loadBtn" style="display:none">Continuar</button>
+    </div>
   </div>
 </div>
 
 <!-- ONBOARDING -->
-<div id="so" class="screen">
-  <div class="bar"><div class="logo">CALI<span>FIT</span></div></div>
-  <div class="onb">
-    <div class="dots" id="dots"></div>
-    <div id="os1">
-      <div class="qlabel">¿CUÁL ES TU NIVEL ACTUAL?</div>
-      <div class="qsub">Sé honesto/a — todo se adapta a ti</div>
-      <div class="grid2">
-        <button class="opt" onclick="pick('level',1,this)"><div class="ot">Principiante</div><div class="od">Sin actividad regular o menos de 6 meses</div></button>
-        <button class="opt" onclick="pick('level',2,this)"><div class="ot">Intermedio</div><div class="od">1–2 veces/semana con regularidad</div></button>
-        <button class="opt" onclick="pick('level',3,this)"><div class="ot">Avanzado</div><div class="od">3+ veces/semana, buena base</div></button>
-        <button class="opt" onclick="pick('level',4,this)"><div class="ot">Atleta</div><div class="od">Diario, gran control corporal</div></button>
-      </div>
-    </div>
-    <div id="os2" style="display:none">
-      <div class="qlabel">¿CUÁNTOS DÍAS A LA SEMANA?</div>
-      <div class="qsub">El programa está diseñado para 4 días; con 3 también funciona</div>
-      <div class="drow">
-        <button class="dbtn" onclick="pickD(3,this)">3</button>
-        <button class="dbtn" onclick="pickD(4,this)">4</button>
-      </div>
-    </div>
-    <div id="os3" style="display:none">
-      <div class="qlabel">¿CUÁL ES TU PUNTO DE PARTIDA?</div>
-      <div class="qsub">Esto ajusta los umbrales de repeticiones — no tiene nada que ver con el género</div>
-      <div class="grid2">
-        <button class="opt" onclick="pick('sex','m',this)"><div class="ot">Más masa muscular</div><div class="od">Umbrales de repeticiones más altos</div></button>
-        <button class="opt" onclick="pick('sex','f',this)"><div class="ot">Menos masa muscular</div><div class="od">Umbrales de repeticiones adaptados</div></button>
-      </div>
-    </div>
-    <div id="os4" style="display:none">
-      <div class="qlabel">¿TIENES ALGUNA DOLENCIA?</div>
-      <div class="qsub">Selecciona todas las que apliquen</div>
-      <div class="grid2">
-        <button class="opt injbtn" data-i="lumbar" onclick="togInj('lumbar',this)"><div class="ot">Dolor lumbar</div><div class="od">Espalda baja, ciática</div></button>
-        <button class="opt injbtn" data-i="shoulder" onclick="togInj('shoulder',this)"><div class="ot">Hombros</div><div class="od">Manguito, impingement</div></button>
-        <button class="opt injbtn" data-i="knee" onclick="togInj('knee',this)"><div class="ot">Rodillas</div><div class="od">Condromalacia, ligamentos</div></button>
-        <button class="opt injbtn" data-i="wrist" onclick="togInj('wrist',this)"><div class="ot">Muñecas</div><div class="od">Túnel carpiano, tendinitis</div></button>
-        <button class="opt injbtn" data-i="neck" onclick="togInj('neck',this)"><div class="ot">Cervicales</div><div class="od">Contracturas, hernias</div></button>
-        <button class="opt injbtn" data-i="none" onclick="togInj('none',this)"><div class="ot">✓ Sin dolencias</div><div class="od">Todo en orden</div></button>
-      </div>
-    </div>
-    <div id="os5" style="display:none">
-      <div class="qlabel">¿CÓMO TE LLAMAMOS?</div>
-      <div class="qsub">Opcional</div>
-      <input id="ninp" class="ninp" type="text" placeholder="Tu nombre..."/>
-    </div>
-    <div class="navrow">
-      <button class="btn2" id="bprev" onclick="prevS()" style="display:none">← ATRÁS</button>
-      <button class="btn" id="bnext" onclick="nextS()">SIGUIENTE →</button>
+<div class="screen" id="scr-onboarding">
+  <div class="wrap">
+    <div class="nav-dots" id="navDots"></div>
+    <div id="onbStep"></div>
+    <div class="stepnav">
+      <button class="btn ghost" id="prevBtn" onclick="prevStep()" style="display:none;flex:1" data-i="btn_back">Enrere</button>
+      <button class="btn" id="nextBtn" onclick="nextStep()" style="flex:2" data-i="btn_next">Següent</button>
     </div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="sd" class="screen">
-  <div class="bar">
-    <div class="logo">CALI<span>FIT</span></div>
-    <nav class="tabs">
-      <button class="tab on" onclick="showTab('entrenar',this)">Entrenar</button>
-      <button class="tab" onclick="showTab('progreso',this)">Progreso</button>
-      <button class="tab" onclick="showTab('historial',this)">Historial</button>
-      <button class="tab" onclick="showTab('correr',this)">Correr</button>
-      <button class="tab" onclick="showTab('feedback',this)">💬 Feedback</button>
-    </nav>
-  </div>
-  <div id="t-entrenar" class="wrap">
-    <div class="card pcard" id="pcardel"></div>
-    <div id="lvlup-banners"></div>
-    <div class="stats" id="statsrow"></div>
-    <div class="stitle">PROGRAMA DE 10 SEMANAS</div>
-    <div id="program-weeks"></div>
-  </div>
-  <div id="t-progreso" class="wrap" style="display:none">
-    <div class="stitle">CALENDARIO</div>
-    <div id="calwrap"></div>
-    <div class="stitle">NIVELES POR EJERCICIO</div>
-    <div id="progwrap"></div>
-  </div>
-  <div id="t-historial" class="wrap" style="display:none">
-    <div class="stitle">HISTORIAL DE ENTRENOS</div>
-    <div id="histlist"></div>
-  </div>
-  <div id="t-correr" class="wrap" style="display:none">
-    <div class="stitle">GUÍA: EMPIEZA A CORRER</div>
-    <div id="runcontent"></div>
-  </div>
-  <div id="t-feedback" class="wrap" style="display:none">
-    <div class="stitle">DANOS TU FEEDBACK</div>
-    <div class="info-box" style="margin-bottom:1.5rem">
-      <strong>💬 Ayúdanos a mejorar CaliFit</strong>
-      Solo 2 minutos. Tu opinión es muy valiosa para seguir desarrollando la app.
-    </div>
-    <div id="feedback-form-wrap">
-      <div id="feedback-thanks" style="display:none;text-align:center;padding:3rem 1rem">
-        <div style="font-size:3rem;margin-bottom:1rem">🙏</div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:2px;margin-bottom:.75rem">¡GRACIAS!</div>
-        <div style="color:var(--muted);font-size:.9rem">Tu feedback nos ayuda mucho a mejorar la app.</div>
-      </div>
-      <form id="feedback-form" onsubmit="submitFeedback(event)">
-        <!-- Nivel -->
-        <div style="margin-bottom:1.5rem">
-          <div style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">1. ¿Qué nivel elegiste al empezar?</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <label class="fb-opt"><input type="radio" name="nivel" value="Principiante" required><span>Principiante</span></label>
-            <label class="fb-opt"><input type="radio" name="nivel" value="Intermedio"><span>Intermedio</span></label>
-            <label class="fb-opt"><input type="radio" name="nivel" value="Avanzado"><span>Avanzado</span></label>
-            <label class="fb-opt"><input type="radio" name="nivel" value="Atleta"><span>Atleta</span></label>
-          </div>
-        </div>
-        <!-- Facilidad de uso -->
-        <div style="margin-bottom:1.5rem">
-          <div style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">2. ¿Has podido seguir el programa sin problemas?</div>
-          <div class="star-row" id="stars-uso">
-            <button type="button" class="star-btn" data-field="uso" data-val="1" onclick="setStar('uso',1)">★</button>
-            <button type="button" class="star-btn" data-field="uso" data-val="2" onclick="setStar('uso',2)">★</button>
-            <button type="button" class="star-btn" data-field="uso" data-val="3" onclick="setStar('uso',3)">★</button>
-            <button type="button" class="star-btn" data-field="uso" data-val="4" onclick="setStar('uso',4)">★</button>
-            <button type="button" class="star-btn" data-field="uso" data-val="5" onclick="setStar('uso',5)">★</button>
-          </div>
-          <input type="hidden" name="facilidad_uso" id="val-uso">
-          <div style="font-size:.75rem;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between"><span>Difícil</span><span>Muy fácil</span></div>
-        </div>
-        <!-- Botón nivel -->
-        <div style="margin-bottom:1.5rem">
-          <div style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">3. ¿Encontraste el botón "Estoy aquí" para cambiar de nivel?</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-            <label class="fb-opt"><input type="radio" name="boton_nivel" value="Sí, claro" required><span>Sí, claro</span></label>
-            <label class="fb-opt"><input type="radio" name="boton_nivel" value="Con dificultad"><span>Con dificultad</span></label>
-            <label class="fb-opt"><input type="radio" name="boton_nivel" value="No lo vi"><span>No lo vi</span></label>
-          </div>
-        </div>
-        <!-- Satisfacción general -->
-        <div style="margin-bottom:1.5rem">
-          <div style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">4. ¿Qué nota le darías a la app en general?</div>
-          <div class="star-row" id="stars-general">
-            <button type="button" class="star-btn" data-field="general" data-val="1" onclick="setStar('general',1)">★</button>
-            <button type="button" class="star-btn" data-field="general" data-val="2" onclick="setStar('general',2)">★</button>
-            <button type="button" class="star-btn" data-field="general" data-val="3" onclick="setStar('general',3)">★</button>
-            <button type="button" class="star-btn" data-field="general" data-val="4" onclick="setStar('general',4)">★</button>
-            <button type="button" class="star-btn" data-field="general" data-val="5" onclick="setStar('general',5)">★</button>
-          </div>
-          <input type="hidden" name="nota_general" id="val-general">
-          <div style="font-size:.75rem;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between"><span>Mejorable</span><span>Excelente</span></div>
-        </div>
-        <!-- Lo que más gusta -->
-        <div style="margin-bottom:1.5rem">
-          <div style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">5. ¿Qué es lo que más te ha gustado?</div>
-          <textarea name="lo_mejor" class="fb-textarea" placeholder="El calendario, los vídeos, la progresión..." rows="3"></textarea>
-        </div>
-        <!-- Qué cambiarías -->
-        <div style="margin-bottom:1.5rem">
-          <div style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">6. ¿Qué cambiarías o echas en falta?</div>
-          <textarea name="mejoras" class="fb-textarea" placeholder="Lo que sea, sin filtros..." rows="3"></textarea>
-        </div>
-        <!-- Recomendaría -->
-        <div style="margin-bottom:2rem">
-          <div style="font-weight:600;font-size:.9rem;margin-bottom:.75rem">7. ¿Se la recomendarías a alguien?</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-            <label class="fb-opt"><input type="radio" name="recomienda" value="Sí" required><span>Sí, claro</span></label>
-            <label class="fb-opt"><input type="radio" name="recomienda" value="Quizás"><span>Quizás</span></label>
-            <label class="fb-opt"><input type="radio" name="recomienda" value="No"><span>No</span></label>
-          </div>
-        </div>
-        <div id="fb-error" style="display:none;color:var(--danger);font-size:.83rem;margin-bottom:1rem;padding:.75rem 1rem;background:rgba(232,93,93,.08);border-radius:4px;border:1px solid rgba(232,93,93,.25)"></div>
-        <button type="submit" class="btn" style="width:100%" id="fb-submit-btn">ENVIAR FEEDBACK</button>
-        <p style="font-size:.72rem;color:var(--muted);text-align:center;margin-top:.75rem">Tus respuestas son anónimas y se usan solo para mejorar la app.</p>
-      </form>
-    </div>
+<!-- TRAIN -->
+<div class="screen" id="scr-train">
+  <div class="wrap">
+    <div class="profile-card" id="profileCard"></div>
+    <div class="stat-grid" id="statGrid"></div>
+    <div id="lvlupAlert"></div>
+    <h2 class="sec-title" data-i="sec_program">Programa de 10 setmanes</h2>
+    <div id="weekList"></div>
   </div>
 </div>
 
 <!-- SESSION -->
-<div id="ss" class="screen">
-  <div class="bar"><div class="logo">CALI<span>FIT</span></div></div>
-  <div class="wrap" id="sesscontent"></div>
-</div>
-
-<div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
-<div class="toast" id="toast"></div>
-
-<!-- BOTTOM NAV (mobile) -->
-<div class="bottom-nav" id="bottom-nav">
-  <div class="bottom-nav-inner">
-    <button class="bnav-btn on" id="bn-entrenar" onclick="showTab('entrenar',null);setBottomNav('entrenar')">
-      <span class="bnav-icon">🏋️</span>Entrenar
-    </button>
-    <button class="bnav-btn" id="bn-progreso" onclick="showTab('progreso',null);setBottomNav('progreso')">
-      <span class="bnav-icon">📈</span>Progreso
-    </button>
-    <button class="bnav-btn" id="bn-historial" onclick="showTab('historial',null);setBottomNav('historial')">
-      <span class="bnav-icon">📋</span>Historial
-    </button>
-    <button class="bnav-btn" id="bn-correr" onclick="showTab('correr',null);setBottomNav('correr')">
-      <span class="bnav-icon">🏃</span>Correr
-    </button>
-    <button class="bnav-btn" id="bn-feedback" onclick="showTab('feedback',null);setBottomNav('feedback')">
-      <span class="bnav-icon">💬</span>Feedback
-    </button>
+<div class="screen" id="scr-session">
+  <div class="wrap">
+    <button class="backbtn" onclick="closeSession()" data-i="btn_back_train">&larr; Tornar</button>
+    <div id="sessionBody"></div>
   </div>
 </div>
+
+<!-- PROGRESS -->
+<div class="screen" id="scr-progress">
+  <div class="wrap">
+    <h2 class="sec-title" data-i="sec_calendar">Calendari</h2>
+    <div class="card" id="calCard"></div>
+    <h2 class="sec-title" data-i="sec_levels">Nivells per exercici</h2>
+    <div class="intro-box" data-i="levels_help">Prem "Estic aquí" al nivell que fas servir ara. Quan completis 3 sessions seguides, l'app et proposarà pujar de nivell.</div>
+    <div id="progList"></div>
+  </div>
 </div>
 
-<script>
-// ============ STATE ============
-let P={level:1,days:4,sex:'m',injuries:[],name:''};
-let HIST=[];
-// exLevels: {flexion: {lvl:1, date:'...', history:[...]}}
-let EX_LEVELS={};
-let EX_COMPLETIONS={};
-let curS=1; const STEPS=5;
-let doneEx={}; let curSessData=null;
-let calYear=new Date().getFullYear(); let calMonth=new Date().getMonth();
+<!-- HISTORY -->
+<div class="screen" id="scr-history">
+  <div class="wrap">
+    <h2 class="sec-title" data-i="sec_history">Historial</h2>
+    <div id="histList"></div>
+  </div>
+</div>
 
-// ============ THE 10-WEEK PROGRAM (faithful to the book) ============
-// Method codes: PYR=pirámide 7min, SUP=superset 3x8-12, SER=series fuerza, POT=potencia, HIIT=hiit, EXTRA=opcional
-const PROGRAM=[
-  // ── SEMANAS 1-2: RESISTENCIA / MASA MUSCULAR ──
-  // 4 días: D1 Tirar+Empujar (pirámides), D2 Piernas+Core (pirámides), D3 Tirar+Empujar (supersets), D4 Piernas+Core (supersets)
-  {weeks:'1–2', label:'RESISTENCIA · MASA MUSCULAR', method:'Pirámides (7 min) + Supersets', color:'var(--acc2)',
-   days:[
-    {label:'DÍA 1 — TIRAR + EMPUJAR', focus:'push', note:'Pirámide 7 min por ejercicio · 1 min descanso entre ejercicios · Nivel máximo –1',
-     exercises:[
-      {name:'Flexiones',tag:'push',method:'PYR',detail:'7 min pirámide · nivel máx–1'},
-      {name:'Dominadas',tag:'pull',method:'PYR',detail:'7 min pirámide · alterna agarre prono/supino'},
-      {name:'Flexiones verticales (Pike)',tag:'push',method:'PYR',detail:'7 min pirámide'},
-      {name:'Semi-dominada horizontal',tag:'pull',method:'PYR',detail:'7 min pirámide'},
-      {name:'(EXTRA) Fondos en paralelas / silla',tag:'push',method:'EXTRA',detail:'Pirámide 7 min si tienes energía'}
-     ]},
-    {label:'DÍA 2 — PIERNAS + CORE', focus:'legs',note:'Pirámide 7 min por ejercicio · 1 min descanso',
-     exercises:[
-      {name:'Desplantes',tag:'legs',method:'PYR',detail:'7 min pirámide · alterna piernas'},
-      {name:'Sentadillas',tag:'legs',method:'PYR',detail:'7 min pirámide'},
-      {name:'Abdominales',tag:'core',method:'PYR',detail:'7 min pirámide'},
-      {name:'Plancha lateral',tag:'core',method:'PYR',detail:'2 × 1 min por lado'},
-      {name:'(EXTRA) Sentadilla búlgara',tag:'legs',method:'EXTRA',detail:'Pirámide 7 min si tienes energía'}
-     ]},
-    {label:'DÍA 3 — TIRAR + EMPUJAR', focus:'push',note:'Supersets sin descanso entre pares · 1 min entre supersets · 8–12 reps',
-     exercises:[
-      {name:'Flexiones + Dominadas',tag:'push',method:'SUP',detail:'3 supersets × 8–12 reps cada ejercicio'},
-      {name:'Flexiones en T + Dominadas horizontales',tag:'pull',method:'SUP',detail:'3 supersets × 8–12 reps'},
-      {name:'Flexiones hindús + Dominadas agarre supino',tag:'push',method:'SUP',detail:'3 supersets × 8–12 reps'},
-      {name:'Flexiones verticales + Dominada comando',tag:'push',method:'SUP',detail:'3 supersets × 8–12 reps'},
-      {name:'(EXTRA) Flexión manos juntas + Dominada manos juntas',tag:'push',method:'EXTRA',detail:'2 supersets si tienes energía'}
-     ]},
-    {label:'DÍA 4 — PIERNAS + CORE', focus:'legs',note:'Supersets · 1 min entre supersets · 8–12 reps',
-     exercises:[
-      {name:'Desplantes laterales + Abdominales',tag:'legs',method:'SUP',detail:'3 supersets × 8–12 reps'},
-      {name:'Sentadillas + Lumbares',tag:'legs',method:'SUP',detail:'3 supersets × 8–12 reps'},
-      {name:'Elevaciones de talones + Flexión S&M',tag:'legs',method:'SUP',detail:'3 supersets · S&M: 3–4'},
-      {name:'Levantamiento de caderas',tag:'core',method:'SUP',detail:'3 series × 12–15 reps'},
-      {name:'(EXTRA) Bicicleta + Rodilla al pecho',tag:'core',method:'EXTRA',detail:'2 supersets si tienes energía'}
-     ]}
+<!-- RUN -->
+<div class="screen" id="scr-run">
+  <div class="wrap">
+    <h2 class="sec-title" data-i="sec_run">Comença a córrer</h2>
+    <div class="intro-box" id="runIntro"></div>
+    <div id="runList"></div>
+  </div>
+</div>
+
+<!-- GLOSSARY -->
+<div class="screen" id="scr-gloss">
+  <div class="wrap">
+    <h2 class="sec-title" data-i="sec_gloss">Glossari</h2>
+    <p style="color:var(--muted);font-size:.84rem;margin-bottom:1rem" data-i="gloss_intro">Termes tècnics del mètode Desencadenado.</p>
+    <div id="glossList"></div>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="screen" id="scr-feedback">
+  <div class="wrap">
+    <h2 class="sec-title" data-i="sec_fb">La teva opinió</h2>
+    <div id="fbBody"></div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tabbar" id="tabbar" style="display:none">
+  <button class="tabitem on" data-tab="train" onclick="switchTab('train')"><span class="ic">&#127947;</span><span data-i="tab_train">Entrenar</span></button>
+  <button class="tabitem" data-tab="progress" onclick="switchTab('progress')"><span class="ic">&#128200;</span><span data-i="tab_progress">Progrés</span></button>
+  <button class="tabitem" data-tab="history" onclick="switchTab('history')"><span class="ic">&#128197;</span><span data-i="tab_history">Historial</span></button>
+  <button class="tabitem" data-tab="run" onclick="switchTab('run')"><span class="ic">&#127939;</span><span data-i="tab_run">Córrer</span></button>
+  <button class="tabitem" data-tab="gloss" onclick="switchTab('gloss')"><span class="ic">&#128214;</span><span data-i="tab_gloss">Glossari</span></button>
+  <button class="tabitem" data-tab="feedback" onclick="switchTab('feedback')"><span class="ic">&#128172;</span><span data-i="tab_fb">Opinió</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+
+
+<script>
+// ============ UI STRINGS ============
+const UI = {
+  hero_title:{ca:'ENTRENA AMB EL <span>TEU COS</span>',es:'ENTRENA CON TU <span>CUERPO</span>'},
+  hero_sub:{ca:'Programa de calistènia de 10 setmanes basat en el mètode Desencadenado. Sense gimnàs.',es:'Programa de calistenia de 10 semanas basado en el método Desencadenado. Sin gimnasio.'},
+  hero_start:{ca:'Comença ara',es:'Empezar ahora'},
+  hero_load:{ca:'Continuar',es:'Continuar'},
+  btn_back:{ca:'Enrere',es:'Atrás'},
+  btn_next:{ca:'Següent',es:'Siguiente'},
+  btn_finish:{ca:'Finalitzar',es:'Finalizar'},
+  btn_back_train:{ca:'← Tornar',es:'← Volver'},
+  sec_program:{ca:'Programa de 10 setmanes',es:'Programa de 10 semanas'},
+  sec_calendar:{ca:'Calendari',es:'Calendario'},
+  sec_levels:{ca:'Nivells per exercici',es:'Niveles por ejercicio'},
+  sec_history:{ca:'Historial',es:'Historial'},
+  sec_run:{ca:'Comença a córrer',es:'Empieza a correr'},
+  sec_gloss:{ca:'Glossari',es:'Glosario'},
+  sec_fb:{ca:'La teva opinió',es:'Tu opinión'},
+  levels_help:{ca:'Prem "Estic aquí" al nivell que fas servir ara. Quan completis 3 sessions seguides, l\'app et proposarà pujar de nivell.',es:'Pulsa "Estoy aquí" en el nivel que usas ahora. Cuando completes 3 sesiones seguidas, la app te propondrá subir de nivel.'},
+  gloss_intro:{ca:'Termes tècnics del mètode Desencadenado.',es:'Términos técnicos del método Desencadenado.'},
+  tab_train:{ca:'Entrenar',es:'Entrenar'},
+  tab_progress:{ca:'Progrés',es:'Progreso'},
+  tab_history:{ca:'Historial',es:'Historial'},
+  tab_run:{ca:'Córrer',es:'Correr'},
+  tab_gloss:{ca:'Glossari',es:'Glosario'},
+  tab_fb:{ca:'Opinió',es:'Opinión'},
+  // onboarding
+  q1_title:{ca:'Quin és el teu nivell?',es:'¿Cuál es tu nivel?'},
+  q1_sub:{ca:'Sigues sincer/a. Tot s\'adapta a tu.',es:'Sé sincero/a. Todo se adapta a ti.'},
+  q1_o1t:{ca:'Principiant',es:'Principiante'},q1_o1d:{ca:'Poca o cap experiència',es:'Poca o ninguna experiencia'},
+  q1_o2t:{ca:'Intermedi',es:'Intermedio'},q1_o2d:{ca:'Entrenes de tant en tant',es:'Entrenas de vez en cuando'},
+  q1_o3t:{ca:'Avançat',es:'Avanzado'},q1_o3d:{ca:'Entrenes amb regularitat',es:'Entrenas con regularidad'},
+  q1_o4t:{ca:'Atleta',es:'Atleta'},q1_o4d:{ca:'Gran forma física',es:'Gran forma física'},
+  q2_title:{ca:'Quants dies a la setmana?',es:'¿Cuántos días a la semana?'},
+  q2_sub:{ca:'El programa recomana 4 dies. Amb 3 també funciona.',es:'El programa recomienda 4 días. Con 3 también funciona.'},
+  q3_title:{ca:'Punt de partida',es:'Punto de partida'},
+  q3_sub:{ca:'Ajusta els llindars de repeticions. No té res a veure amb el gènere.',es:'Ajusta los umbrales de repeticiones. No tiene que ver con el género.'},
+  q3_o1t:{ca:'Més massa muscular',es:'Más masa muscular'},q3_o1d:{ca:'Llindars de reps més alts',es:'Umbrales de reps más altos'},
+  q3_o2t:{ca:'Menys massa muscular',es:'Menos masa muscular'},q3_o2d:{ca:'Llindars de reps adaptats',es:'Umbrales de reps adaptados'},
+  q4_title:{ca:'Tens alguna molèstia?',es:'¿Tienes alguna molestia?'},
+  q4_sub:{ca:'Adaptarem els exercicis. Pots triar-ne diverses.',es:'Adaptaremos los ejercicios. Puedes elegir varias.'},
+  inj_none:{ca:'Cap molèstia',es:'Ninguna molestia'},
+  inj_lumbar:{ca:'Lumbars / esquena baixa',es:'Lumbares / espalda baja'},
+  inj_shoulder:{ca:'Espatlles',es:'Hombros'},
+  inj_knee:{ca:'Genolls',es:'Rodillas'},
+  inj_wrist:{ca:'Canells',es:'Muñecas'},
+  inj_neck:{ca:'Cervicals',es:'Cervicales'},
+  q5_title:{ca:'Com et dius?',es:'¿Cómo te llamas?'},
+  q5_sub:{ca:'Opcional, per personalitzar.',es:'Opcional, para personalizar.'},
+  q5_ph:{ca:'El teu nom',es:'Tu nombre'},
+  // profile / stats
+  prof_level:{ca:'Nivell',es:'Nivel'},
+  prof_days:{ca:'dies/setmana',es:'días/semana'},
+  stat_sessions:{ca:'Sessions',es:'Sesiones'},
+  stat_week:{ca:'Aquesta setm.',es:'Esta sem.'},
+  stat_streak:{ca:'Ratxa',es:'Racha'},
+  edit:{ca:'Editar perfil',es:'Editar perfil'},
+  // week / session
+  view_day:{ca:'Veure dia',es:'Ver día'},
+  day:{ca:'Dia',es:'Día'},
+  start_session:{ca:'▶ Iniciar sessió',es:'▶ Iniciar sesión'},
+  warmup_title:{ca:'Escalfament (5 min)',es:'Calentamiento (5 min)'},
+  warmup_txt:{ca:'20 girs de braços · 10 girs de coll · 30 s saltar corda o córrer al lloc · 25 jumping jacks · 5 burpees.',es:'20 giros de brazos · 10 giros de cuello · 30 s saltar cuerda o correr en el sitio · 25 jumping jacks · 5 burpees.'},
+  mark_done:{ca:'Marcar com fet',es:'Marcar como hecho'},
+  done:{ca:'✓ Fet',es:'✓ Hecho'},
+  finish_session:{ca:'Finalitzar sessió',es:'Finalizar sesión'},
+  watch_video:{ca:'Veure vídeo a YouTube',es:'Ver vídeo en YouTube'},
+  level:{ca:'Nivell',es:'Nivel'},
+  // injuries in session
+  inj_warn_lumbar:{ca:'⚠️ Cura amb les lumbars: mantén el core actiu i evita arquejar.',es:'⚠️ Cuidado con las lumbares: mantén el core activo y evita arquear.'},
+  inj_warn_shoulder:{ca:'⚠️ Cura amb les espatlles: redueix el rang si fa mal.',es:'⚠️ Cuidado con los hombros: reduce el rango si duele.'},
+  inj_warn_knee:{ca:'⚠️ Cura amb els genolls: no passis la punta del peu i controla la baixada.',es:'⚠️ Cuidado con las rodillas: no pases la punta del pie y controla la bajada.'},
+  inj_warn_wrist:{ca:'⚠️ Cura amb els canells: fes servir grips o punys tancats.',es:'⚠️ Cuidado con las muñecas: usa grips o puños cerrados.'},
+  inj_warn_neck:{ca:'⚠️ Cura amb les cervicals: no forcis el coll.',es:'⚠️ Cuidado con las cervicales: no fuerces el cuello.'},
+  // levels / progress
+  here:{ca:'Estic aquí',es:'Estoy aquí'},
+  current:{ca:'Actual',es:'Actual'},
+  lvlup_title:{ca:'Pots pujar de nivell!',es:'¡Puedes subir de nivel!'},
+  lvlup_txt:{ca:'Has completat 3 sessions. Vols pujar al nivell següent en algun exercici?',es:'Has completado 3 sesiones. ¿Quieres subir al siguiente nivel en algún ejercicio?'},
+  // calendar
+  months:{ca:['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'],es:['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']},
+  dows:{ca:['Dl','Dt','Dc','Dj','Dv','Ds','Dg'],es:['Lu','Ma','Mi','Ju','Vi','Sá','Do']},
+  // history
+  no_history:{ca:'Encara no has completat cap sessió. Comença avui!',es:'Aún no has completado ninguna sesión. ¡Empieza hoy!'},
+  // run
+  run_intro:{ca:'Programa progressiu de 8 setmanes per passar de zero a córrer 30 minuts seguits. Combina córrer i caminar.',es:'Programa progresivo de 8 semanas para pasar de cero a correr 30 minutos seguidos. Combina correr y caminar.'},
+  run_week:{ca:'Setmana',es:'Semana'},
+  run_knee_warn:{ca:'⚠️ Has indicat molèsties als genolls. Comença suau i consulta un professional si fa mal.',es:'⚠️ Has indicado molestias en las rodillas. Empieza suave y consulta a un profesional si duele.'},
+  // feedback
+  fb_intro:{ca:'Ajuda\'ns a millorar CaliFit. Només 1 minut.',es:'Ayúdanos a mejorar CaliFit. Solo 1 minuto.'},
+  fb_q1:{ca:'Quin nivell vas triar?',es:'¿Qué nivel elegiste?'},
+  fb_q2:{ca:'Com de fàcil és fer servir l\'app?',es:'¿Qué tan fácil es usar la app?'},
+  fb_q3:{ca:'Trobes útil el sistema de nivells?',es:'¿Te resulta útil el sistema de niveles?'},
+  fb_q3_o1:{ca:'Molt útil',es:'Muy útil'},fb_q3_o2:{ca:'Una mica',es:'Algo'},fb_q3_o3:{ca:'No gaire',es:'No mucho'},
+  fb_q4:{ca:'Valoració general',es:'Valoración general'},
+  fb_q5:{ca:'Què t\'agrada més?',es:'¿Qué te gusta más?'},
+  fb_q6:{ca:'Què milloraries?',es:'¿Qué mejorarías?'},
+  fb_send:{ca:'Enviar opinió',es:'Enviar opinión'},
+  fb_sending:{ca:'Enviant...',es:'Enviando...'},
+  fb_thanks:{ca:'Gràcies pel teu feedback!',es:'¡Gracias por tu feedback!'},
+  fb_ph5:{ca:'El calendari, els vídeos...',es:'El calendario, los vídeos...'},
+  fb_ph6:{ca:'Què hi falta...',es:'Qué falta...'},
+  // modal / misc
+  confirm:{ca:'Confirmar',es:'Confirmar'},
+  cancel:{ca:'Cancel·lar',es:'Cancelar'},
+  continue:{ca:'Continuar',es:'Continuar'},
+  session_done:{ca:'Sessió completada!',es:'¡Sesión completada!'},
+  session_done_txt:{ca:'Bona feina. Segueix així!',es:'¡Buen trabajo. Sigue así!'},
+  reset_confirm:{ca:'Segur que vols editar el perfil? Es mantindrà l\'historial.',es:'¿Seguro que quieres editar el perfil? Se mantendrá el historial.'},
+  tags:{push:{ca:'Empènyer',es:'Empujar'},pull:{ca:'Estirar',es:'Tirar'},legs:{ca:'Cames',es:'Piernas'},core:{ca:'Core',es:'Core'},extra:{ca:'Extra',es:'Extra'}},
+};
+
+// ============ PROGRAM (faithful to Desencadenado, pp.96-111) ============
+const WEEKS = [
+{id:'w12',badge:'1-2',
+ title:{ca:'Resistència / Massa muscular',es:'Resistencia / Masa muscular'},
+ sub:{ca:'Piràmides i Supersets',es:'Pirámides y Supersets'},
+ color:'var(--acc2)',
+ days:[
+  {label:{ca:'Dia 1 — Estirar/Empènyer',es:'Día 1 — Tirar/Empujar'},method:'PYR',
+   note:{ca:'Piràmide de 7 min per exercici · nivell màxim −1 · 1 min de descans entre piràmides.',es:'Pirámide de 7 min por ejercicio · nivel máximo −1 · 1 min de descanso entre pirámides.'},
+   ex:[
+    {n:{ca:'Flexions',es:'Flexiones'},tag:'push',d:{ca:'Piràmide 7 min',es:'Pirámide 7 min'}},
+    {n:{ca:'Dominades',es:'Dominadas'},tag:'pull',d:{ca:'Piràmide 7 min · alterna agafada prona/supina/neutra',es:'Pirámide 7 min · alterna agarre prono/supino/neutro'}},
+    {n:{ca:'Flexions hindús',es:'Flexiones hindús'},tag:'push',d:{ca:'Piràmide 7 min',es:'Pirámide 7 min'}},
+    {n:{ca:'Semidominada horitzontal',es:'Semidominada horizontal'},tag:'pull',d:{ca:'Piràmide 7 min',es:'Pirámide 7 min'}},
+    {n:{ca:'(EXTRA) Fons en paral·leles (Dips)',es:'(EXTRA) Fondos en paralelas (Dips)'},tag:'extra',d:{ca:'Piràmide · versió amb peus recolzats si costa',es:'Pirámide · versión con pies apoyados si cuesta'}},
    ]},
-  // ── SEMANAS 3-4: FUERZA ──
-  // 4 días: D1 Empujar, D2 Piernas, D3 Tirar, D4 Core · nivel máx+1 · 3 series · descanso 1min series / 2min ejercicios
-  {weeks:'3–4', label:'FUERZA', method:'3 series × 5–8 reps · nivel máx+1 · descanso 1–2 min', color:'var(--warn)',
-   days:[
-    {label:'DÍA 1 — EMPUJAR', focus:'push',note:'Nivel máx+1 · 3 series · 1 min entre series · 2 min entre ejercicios',
-     exercises:[
-      {name:'Flexiones',tag:'push',method:'SER',detail:'3 × 6–8 reps'},
-      {name:'Flexiones verticales (Pike)',tag:'push',method:'SER',detail:'3 × 5–8 reps'},
-      {name:'Flexiones con manos juntas',tag:'push',method:'SER',detail:'3 × 10–15 reps'},
-      {name:'Fondos (Dips) en silla o paralelas',tag:'push',method:'SER',detail:'3 × 8–10 reps'},
-      {name:'(EXTRA) Flexiones con balón',tag:'push',method:'EXTRA',detail:'2 × 8–10 reps'}
-     ]},
-    {label:'DÍA 2 — PIERNAS', focus:'legs',note:'Nivel máx+1 · 3 series',
-     exercises:[
-      {name:'Sentadillas',tag:'legs',method:'SER',detail:'3 × 5–8 reps (por pierna en niveles 4–5)'},
-      {name:'Elevaciones de talones',tag:'legs',method:'SER',detail:'3 × 8–10 reps por pierna'},
-      {name:'Sentadillas búlgaras con peso',tag:'legs',method:'SER',detail:'3 × 8–10 reps por pierna'},
-      {name:'Desplantes con peso',tag:'legs',method:'SER',detail:'3 × 5–8 reps por pierna'},
-      {name:'(EXTRA) Levantamiento de caderas a 1 pierna',tag:'core',method:'EXTRA',detail:'2 × 8–10 reps por lado'}
-     ]},
-    {label:'DÍA 3 — TIRAR', focus:'pull',note:'Nivel máx+1 · 3 series',
-     exercises:[
-      {name:'Dominadas',tag:'pull',method:'SER',detail:'3 × 5–8 reps'},
-      {name:'Dominada horizontal pies elevados',tag:'pull',method:'SER',detail:'3 × 5–8 reps'},
-      {name:'Dominadas agarre supino',tag:'pull',method:'SER',detail:'3 × 5–8 reps'},
-      {name:'Semi-dominada horizontal a 1 mano',tag:'pull',method:'SER',detail:'3 × 5–8 reps por mano'},
-      {name:'(EXTRA) Dominada manos juntas',tag:'pull',method:'EXTRA',detail:'2 × 8–10 reps'}
-     ]},
-    {label:'DÍA 4 — CORE', focus:'core',note:'Nivel máx · 3 series',
-     exercises:[
-      {name:'Abdominales',tag:'core',method:'SER',detail:'3 × 8–10 reps'},
-      {name:'Abdominales en V',tag:'core',method:'SER',detail:'3 × 8–10 reps'},
-      {name:'Bicicleta',tag:'core',method:'SER',detail:'3 × 5–8 reps por lado'},
-      {name:'Flexiones superman',tag:'core',method:'SER',detail:'3 × 5–8 reps'},
-      {name:'(EXTRA) Lumbares',tag:'core',method:'EXTRA',detail:'2 × 8–10 reps'}
-     ]}
+  {label:{ca:'Dia 2 — Cames/Core',es:'Día 2 — Piernas/Core'},method:'PYR',
+   note:{ca:'Piràmide de 7 min per exercici · 1 min de descans entre piràmides.',es:'Pirámide de 7 min por ejercicio · 1 min de descanso entre pirámides.'},
+   ex:[
+    {n:{ca:'Zancades laterals',es:'Desplantes laterales'},tag:'legs',d:{ca:'Piràmide 7 min · completa reps de cada costat abans de descansar',es:'Pirámide 7 min · completa reps de cada lado antes de descansar'}},
+    {n:{ca:'Abdominals',es:'Abdominales'},tag:'core',d:{ca:'Piràmide 7 min',es:'Pirámide 7 min'}},
+    {n:{ca:'Sentadilles',es:'Sentadillas'},tag:'legs',d:{ca:'Piràmide 7 min',es:'Pirámide 7 min'}},
+    {n:{ca:'Planxa lateral',es:'Plancha lateral'},tag:'core',d:{ca:'2 × 1 min de cada costat (no piràmide)',es:'2 × 1 min de cada lado (no pirámide)'}},
+    {n:{ca:'(EXTRA) Sentadilla búlgara',es:'(EXTRA) Sentadilla búlgara'},tag:'extra',d:{ca:'Piràmide · reps amb cada cama',es:'Pirámide · reps con cada pierna'}},
    ]},
-  // ── SEMANAS 5-6: POTENCIA ──
-  {weeks:'5–6', label:'POTENCIA', method:'3 series explosivas · nivel máx · fase concéntrica rápida', color:'var(--danger)',
-   days:[
-    {label:'DÍA 1 — EMPUJAR (explosivo)', focus:'push',note:'Fase concéntrica lo más rápida posible · aguanta 2 seg arriba · baja lento',
-     exercises:[
-      {name:'Flexiones con palmada',tag:'push',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Bombardero en picado',tag:'push',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Extensiones de tríceps (pared/suelo)',tag:'push',method:'POT',detail:'3 × 15–20 reps'},
-      {name:'Flexiones espartanas',tag:'push',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'(EXTRA) Flexiones T',tag:'push',method:'EXTRA',detail:'2 × 8–10 reps'}
-     ]},
-    {label:'DÍA 2 — PIERNAS (explosivo)', focus:'legs',note:'Movimientos pliométricos · máxima altura en los saltos',
-     exercises:[
-      {name:'Desplantes con salto',tag:'legs',method:'POT',detail:'3 × 8–10 reps por pierna (16–20 saltos)'},
-      {name:'Rodillas al pecho (salto)',tag:'legs',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Salto sobre plataforma',tag:'legs',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Sentadilla con salto',tag:'legs',method:'POT',detail:'3 × 5–8 reps'},
-      {name:'(EXTRA) Desplantes laterales',tag:'legs',method:'EXTRA',detail:'2 × 5–8 reps por lado'}
-     ]},
-    {label:'DÍA 3 — TIRAR (explosivo)', focus:'pull',note:'Dominadas explosivas: intenta que el pecho llegue a la barra',
-     exercises:[
-      {name:'Dominadas (explosivas)',tag:'pull',method:'POT',detail:'3 × 5–8 reps'},
-      {name:'Dominadas horizontales',tag:'pull',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Dominadas agarre supino (explosivas)',tag:'pull',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Semi-dominadas horizontales',tag:'pull',method:'POT',detail:'3 × 15–20 reps'},
-      {name:'(EXTRA) Dominada comando',tag:'pull',method:'EXTRA',detail:'2 × 5–8 reps'}
-     ]},
-    {label:'DÍA 4 — CORE', focus:'core',note:'Movimientos explosivos en los ejercicios dinámicos',
-     exercises:[
-      {name:'Abdominales (explosivos)',tag:'core',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Levantamiento de caderas a 1 pierna',tag:'core',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Plancha con flexión (explosiva)',tag:'core',method:'POT',detail:'3 × 5–8 reps'},
-      {name:'Plancha lateral con flexión',tag:'core',method:'POT',detail:'2 × 8–10 reps por lado'},
-      {name:'(EXTRA) Lumbares',tag:'core',method:'EXTRA',detail:'3 × 8–10 reps'}
-     ]}
+  {label:{ca:'Dia 3 — Estirar/Empènyer',es:'Día 3 — Tirar/Empujar'},method:'SUP',
+   note:{ca:'3 supersets per parella · 8-12 reps cada exercici · sense descans entre la parella · 1 min entre supersets.',es:'3 supersets por pareja · 8-12 reps cada ejercicio · sin descanso entre la pareja · 1 min entre supersets.'},
+   ex:[
+    {n:{ca:'Flexions + Dominades',es:'Flexiones + Dominadas'},tag:'push',d:{ca:'3 supersets × 8-12 reps cada un',es:'3 supersets × 8-12 reps cada uno'}},
+    {n:{ca:'Flexions en "T" + Dominades horitzontals',es:'Flexiones en "T" + Dominadas horizontales'},tag:'pull',d:{ca:'3 supersets × 8-12 reps',es:'3 supersets × 8-12 reps'}},
+    {n:{ca:'Flexions hindús + Dominades agafada supina',es:'Flexiones hindús + Dominadas agarre supino'},tag:'push',d:{ca:'3 supersets × 8-12 reps',es:'3 supersets × 8-12 reps'}},
+    {n:{ca:'Flexions verticals + Dominada comando',es:'Flexiones verticales + Dominada comando'},tag:'push',d:{ca:'3 supersets × 8-12 reps',es:'3 supersets × 8-12 reps'}},
+    {n:{ca:'(EXTRA) Flexió mans juntes + Dominada mans juntes',es:'(EXTRA) Flexión manos juntas + Dominada manos juntas'},tag:'extra',d:{ca:'2 supersets',es:'2 supersets'}},
    ]},
-  // ── SEMANAS 7-8: ACONDICIONAMIENTO GLOBAL (fuerza + potencia) ──
-  {weeks:'7–8', label:'ACONDICIONAMIENTO GLOBAL I', method:'Mezcla fuerza + potencia · nivel máximo en todos los ejercicios', color:'#8b5cf6',
-   days:[
-    {label:'DÍA 1 — EMPUJAR', focus:'push',note:'Mezcla ejercicios de fuerza y potencia · nivel máximo',
-     exercises:[
-      {name:'Flexiones sobre balón (alternar brazos)',tag:'push',method:'SER',detail:'2 × 8–10 reps por brazo'},
-      {name:'Flexiones profundas',tag:'push',method:'SER',detail:'3 × 5–8 reps'},
-      {name:'Flexiones verticales',tag:'push',method:'SER',detail:'3 × 5–8 reps'},
-      {name:'Fondos (Dips)',tag:'push',method:'SER',detail:'3 × 8–10 reps'},
-      {name:'(EXTRA) Flexiones ambos brazos sobre balón',tag:'push',method:'EXTRA',detail:'2 × 8–10 reps'}
-     ]},
-    {label:'DÍA 2 — PIERNAS', focus:'legs',note:'Saltos + sentadillas · nivel máximo',
-     exercises:[
-      {name:'Saltos sobre plataforma',tag:'legs',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Desplantes con salto',tag:'legs',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Sentadilla con salto',tag:'legs',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Levantamiento con impulso',tag:'legs',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'(EXTRA) Elevación de talones',tag:'legs',method:'EXTRA',detail:'2 × 8–10 reps por pierna'}
-     ]},
-    {label:'DÍA 3 — TIRAR', focus:'pull',note:'Dominadas variadas · nivel máximo',
-     exercises:[
-      {name:'Dominadas',tag:'pull',method:'SER',detail:'2 × 8–10 reps'},
-      {name:'Dominada horizontal',tag:'pull',method:'SER',detail:'3 × 8–10 reps'},
-      {name:'Dominadas manos juntas',tag:'pull',method:'SER',detail:'2 × 8–10 reps'},
-      {name:'Dominada comando',tag:'pull',method:'SER',detail:'3 × 8–10 reps'},
-      {name:'(EXTRA) Flexión vertical',tag:'push',method:'EXTRA',detail:'2 × 8–10 reps'}
-     ]},
-    {label:'DÍA 4 — CORE + FULL BODY', focus:'core',note:'Ejercicios combinados',
-     exercises:[
-      {name:'Flexión sobre balón (intercambiar brazos)',tag:'push',method:'SER',detail:'2 × 8–10 reps por brazo'},
-      {name:'Flexión espartana',tag:'push',method:'POT',detail:'3 × 8–10 reps'},
-      {name:'Extensión de tríceps',tag:'push',method:'SER',detail:'3 × 8–10 reps'},
-      {name:'Flexión hindú',tag:'push',method:'SER',detail:'3 × 8–10 reps'},
-      {name:'(EXTRA) Flexiones T',tag:'push',method:'EXTRA',detail:'2 × 8–10 reps'}
-     ]}
+  {label:{ca:'Dia 4 — Cames/Core',es:'Día 4 — Piernas/Core'},method:'SUP',
+   note:{ca:'3 supersets per parella · 8-12 reps · sense descans entre la parella · 1 min entre supersets.',es:'3 supersets por pareja · 8-12 reps · sin descanso entre la pareja · 1 min entre supersets.'},
+   ex:[
+    {n:{ca:'Zancades + Abdominals',es:'Desplantes + Abdominales'},tag:'legs',d:{ca:'3 supersets × 8-12 reps',es:'3 supersets × 8-12 reps'}},
+    {n:{ca:'Sentadilles + Lumbars',es:'Sentadillas + Lumbares'},tag:'legs',d:{ca:'3 supersets × 8-12 reps',es:'3 supersets × 8-12 reps'}},
+    {n:{ca:'Elevacions de talons + Flexió S&M',es:'Elevaciones de talones + Flexión S&M'},tag:'legs',d:{ca:'3 supersets',es:'3 supersets'}},
+    {n:{ca:'Elevació de malucs',es:'Levantamiento de caderas'},tag:'core',d:{ca:'3 supersets × 8-12 reps',es:'3 supersets × 8-12 reps'}},
+    {n:{ca:'(EXTRA) Bicicleta + Genoll al pit',es:'(EXTRA) Bicicleta + Rodilla al pecho'},tag:'extra',d:{ca:'2 supersets × 8-12 reps cada costat',es:'2 supersets × 8-12 reps cada lado'}},
    ]},
-  // ── SEMANAS 9-10: ACONDICIONAMIENTO GLOBAL (resistencia + HIIT) ──
-  {weeks:'9–10', label:'ACONDICIONAMIENTO GLOBAL II · HIIT', method:'Semana 9: mín descanso + Tabata · Semana 10: 2–4 rondas HIIT sin parar', color:'var(--danger)',
-   days:[
-    {label:'DÍA 1 — FULL BODY', focus:'push',note:'Sem 9: supersets mrp, min descanso · Sem 10: 2–4 rondas sin parar',
-     exercises:[
-      {name:'Flexiones · nivel máx + Dominadas · nivel máx',tag:'push',method:'HIIT',detail:'Sem9: 2 supersets mrp · Sem10: 20 flexiones'},
-      {name:'Sentadillas · nivel máx',tag:'legs',method:'HIIT',detail:'Sem9: 2 series mrp · Sem10: 20 desplantes'},
-      {name:'Tabata Flexiones Verticales (sem 9)',tag:'push',method:'HIIT',detail:'8 × 20 seg / 10 seg descanso'},
-      {name:'Levantamiento con impulso',tag:'legs',method:'HIIT',detail:'2 series × 10 reps · Sem10: 50 levantamientos rodillas'},
-      {name:'50 Jumping Jacks (calentamiento/finisher)',tag:'core',method:'HIIT',detail:'Sem10: al inicio de cada ronda'}
-     ]},
-    {label:'DÍA 2 — PIERNAS + CORE', focus:'legs',note:'Mínimo descanso entre ejercicios',
-     exercises:[
-      {name:'Bombardero en picado',tag:'push',method:'HIIT',detail:'Sem9: 3 series mrp · Sem10: 20 flexiones a plancha'},
-      {name:'Dominada horizontal',tag:'pull',method:'HIIT',detail:'Sem9: 3 series mrp · Sem10: 20 desplantes laterales'},
-      {name:'Desplantes laterales',tag:'legs',method:'HIIT',detail:'3 series mrp'},
-      {name:'Salto de cuerda · 100 saltos (o 100 levant. rodillas)',tag:'legs',method:'HIIT',detail:'2 series'},
-      {name:'10 Burpees',tag:'core',method:'HIIT',detail:'Sem10: en cada ronda'}
-     ]},
-    {label:'DÍA 3 — TIRAR + CORE', focus:'pull',note:'Mínimo descanso',
-     exercises:[
-      {name:'Abdominales · nivel máx',tag:'core',method:'HIIT',detail:'Sem9: 3 series mrp · Sem10: 10 abdominales nivel máx'},
-      {name:'Lumbares',tag:'core',method:'HIIT',detail:'3 series mrp'},
-      {name:'Abdominales en V',tag:'core',method:'HIIT',detail:'3 series mrp'},
-      {name:'20 Escaladores inversos',tag:'core',method:'HIIT',detail:'Sem9: sin descanso · Sem10: 1 min plancha'},
-      {name:'Burpees',tag:'core',method:'HIIT',detail:'2 series mrp · Sem10: 10 dominadas nivel máx'}
-     ]},
-    {label:'DÍA 4 — HIIT GLOBAL', focus:'core',note:'Sem10: 2–4 rondas completas sin descanso · anota el tiempo total',
-     exercises:[
-      {name:'50 Jumping Jacks',tag:'legs',method:'HIIT',detail:'Al inicio de cada ronda'},
-      {name:'15 Levantamientos con impulso',tag:'legs',method:'HIIT',detail:'Cada ronda'},
-      {name:'20 Escaladores inversos',tag:'core',method:'HIIT',detail:'Cada ronda'},
-      {name:'10 Dominadas · nivel máx',tag:'pull',method:'HIIT',detail:'Cada ronda'},
-      {name:'Esprinta 20 seg + 100 saltos cuerda (o sprint en casa 6 rondas)',tag:'legs',method:'HIIT',detail:'Final de ronda'}
-     ]}
-   ]}
+ ]},
+{id:'w34',badge:'3-4',
+ title:{ca:'Força',es:'Fuerza'},
+ sub:{ca:'Sèries de força',es:'Series de fuerza'},
+ color:'var(--warn)',
+ days:[
+  {label:{ca:'Dia 1 — Empènyer',es:'Día 1 — Empujar'},method:'SER',
+   note:{ca:'Nivell màxim +1 · 3 sèries · 1 min entre sèries · 2 min entre exercicis. Si fas més de 8-10 reps, el nivell és massa fàcil.',es:'Nivel máximo +1 · 3 series · 1 min entre series · 2 min entre ejercicios. Si haces más de 8-10 reps, el nivel es demasiado fácil.'},
+   ex:[
+    {n:{ca:'Flexions',es:'Flexiones'},tag:'push',d:{ca:'3 sèries × 6-8 reps',es:'3 series × 6-8 reps'}},
+    {n:{ca:'Flexions verticals',es:'Flexiones verticales'},tag:'push',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Flexions mans juntes',es:'Flexiones manos juntas'},tag:'push',d:{ca:'3 sèries × 10-15 reps',es:'3 series × 10-15 reps'}},
+    {n:{ca:'Dips (Fons en paral·leles)',es:'Dips (Fondos en paralelas)'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'(EXTRA) Flexions amb pilota',es:'(EXTRA) Flexiones con balón'},tag:'extra',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+   ]},
+  {label:{ca:'Dia 2 — Cames',es:'Día 2 — Piernas'},method:'SER',
+   note:{ca:'Nivell màxim +1 · 3 sèries · 1 min entre sèries · 2 min entre exercicis.',es:'Nivel máximo +1 · 3 series · 1 min entre series · 2 min entre ejercicios.'},
+   ex:[
+    {n:{ca:'Sentadilles',es:'Sentadillas'},tag:'legs',d:{ca:'3 sèries × 5-8 reps (per cama nivells 4-5)',es:'3 series × 5-8 reps (por pierna niveles 4-5)'}},
+    {n:{ca:'Elevacions de talons',es:'Elevaciones de talones'},tag:'legs',d:{ca:'3 sèries × 8-10 reps per cama',es:'3 series × 8-10 reps por pierna'}},
+    {n:{ca:'Sentadilles búlgares amb pes',es:'Sentadillas búlgaras con peso'},tag:'legs',d:{ca:'3 sèries × 8-10 reps per cama',es:'3 series × 8-10 reps por pierna'}},
+    {n:{ca:'Zancades amb pes',es:'Desplantes con peso'},tag:'legs',d:{ca:'3 sèries × 5-8 reps per cama',es:'3 series × 5-8 reps por pierna'}},
+    {n:{ca:'(EXTRA) Elevació de malucs a 1 cama',es:'(EXTRA) Levantamiento de caderas a 1 pierna'},tag:'extra',d:{ca:'2 sèries × 8-10 reps per costat',es:'2 series × 8-10 reps por lado'}},
+   ]},
+  {label:{ca:'Dia 3 — Estirar',es:'Día 3 — Tirar'},method:'SER',
+   note:{ca:'Nivell màxim +1 · 3 sèries · 1 min entre sèries · 2 min entre exercicis.',es:'Nivel máximo +1 · 3 series · 1 min entre series · 2 min entre ejercicios.'},
+   ex:[
+    {n:{ca:'Dominades',es:'Dominadas'},tag:'pull',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Dominada horitzontal amb peus elevats',es:'Dominada horizontal con pies elevados'},tag:'pull',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Dominades agafada supina',es:'Dominadas agarre supino'},tag:'pull',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Semidominada horitzontal a 1 mà',es:'Semidominada horizontal a 1 mano'},tag:'pull',d:{ca:'3 sèries × 5-8 reps amb cada mà',es:'3 series × 5-8 reps con cada mano'}},
+    {n:{ca:'(EXTRA) Dominada mans juntes',es:'(EXTRA) Dominada manos juntas'},tag:'extra',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+   ]},
+  {label:{ca:'Dia 4 — Core',es:'Día 4 — Core'},method:'SER',
+   note:{ca:'Nivell màxim · 3 sèries · 1 min entre sèries · 2 min entre exercicis.',es:'Nivel máximo · 3 series · 1 min entre series · 2 min entre ejercicios.'},
+   ex:[
+    {n:{ca:'Abdominals',es:'Abdominales'},tag:'core',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Abdominals en V',es:'Abdominales en V'},tag:'core',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Bicicletes',es:'Bicicletas'},tag:'core',d:{ca:'3 sèries × 5-8 reps per costat',es:'3 series × 5-8 reps por lado'}},
+    {n:{ca:'Flexions superman',es:'Flexiones superman'},tag:'core',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'(EXTRA) Lumbars',es:'(EXTRA) Lumbares'},tag:'extra',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+   ]},
+ ]},
+{id:'w56',badge:'5-6',
+ title:{ca:'Potència',es:'Potencia'},
+ sub:{ca:'Moviments explosius',es:'Movimientos explosivos'},
+ color:'var(--danger)',
+ days:[
+  {label:{ca:'Dia 1 — Empènyer',es:'Día 1 — Empujar'},method:'POT',
+   note:{ca:'Nivell màxim (o màx −1). Fase concèntrica el més ràpida possible, aguanta 2 s a dalt, baixa lent. 1 min entre sèries, 2 min entre exercicis.',es:'Nivel máximo (o máx −1). Fase concéntrica lo más rápida posible, aguanta 2 s arriba, baja lento. 1 min entre series, 2 min entre ejercicios.'},
+   ex:[
+    {n:{ca:'Flexions amb palmellada',es:'Flexiones con palmada'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Bombarder en picat',es:'Bombardero en picado'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Extensions de tríceps',es:'Extensiones de tríceps'},tag:'push',d:{ca:'3 sèries × 15-20 reps',es:'3 series × 15-20 reps'}},
+    {n:{ca:'Flexions espartanes',es:'Flexiones espartanas'},tag:'push',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'(EXTRA) Flexions "T"',es:'(EXTRA) Flexiones "T"'},tag:'extra',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+   ]},
+  {label:{ca:'Dia 2 — Cames',es:'Día 2 — Piernas'},method:'POT',
+   note:{ca:'Moviments pliomètrics, màxima velocitat i altura. 1 min entre sèries, 2 min entre exercicis.',es:'Movimientos pliométricos, máxima velocidad y altura. 1 min entre series, 2 min entre ejercicios.'},
+   ex:[
+    {n:{ca:'Zancades amb salt',es:'Desplantes con salto'},tag:'legs',d:{ca:'3 sèries × 8-10 reps per cama (16-20 salts)',es:'3 series × 8-10 reps por pierna (16-20 saltos)'}},
+    {n:{ca:'Genolls al pit',es:'Rodillas al pecho'},tag:'legs',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Salt sobre plataforma',es:'Salto sobre plataforma'},tag:'legs',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Sentadilla amb salt',es:'Sentadilla con salto'},tag:'legs',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'(EXTRA) Zancades laterals',es:'(EXTRA) Desplantes laterales'},tag:'extra',d:{ca:'2 sèries × 5-8 reps per costat',es:'2 series × 5-8 reps por lado'}},
+   ]},
+  {label:{ca:'Dia 3 — Estirar',es:'Día 3 — Tirar'},method:'POT',
+   note:{ca:'Dominades explosives: intenta que el pit arribi a la barra. 1 min entre sèries, 2 min entre exercicis.',es:'Dominadas explosivas: intenta que el pecho llegue a la barra. 1 min entre series, 2 min entre ejercicios.'},
+   ex:[
+    {n:{ca:'Dominades explosives',es:'Dominadas explosivas'},tag:'pull',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Dominades horitzontals',es:'Dominadas horizontales'},tag:'pull',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Dominades agafada supina (explosives)',es:'Dominadas agarre supino (explosivas)'},tag:'pull',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Semidominades horitzontals',es:'Semidominadas horizontales'},tag:'pull',d:{ca:'3 sèries × 15-20 reps',es:'3 series × 15-20 reps'}},
+    {n:{ca:'(EXTRA) Dominada comando',es:'(EXTRA) Dominada comando'},tag:'extra',d:{ca:'2 sèries × 5-8 reps',es:'2 series × 5-8 reps'}},
+   ]},
+  {label:{ca:'Dia 4 — Core',es:'Día 4 — Core'},method:'POT',
+   note:{ca:'Moviments explosius en els exercicis dinàmics. 1 min entre sèries, 2 min entre exercicis.',es:'Movimientos explosivos en los ejercicios dinámicos. 1 min entre series, 2 min entre ejercicios.'},
+   ex:[
+    {n:{ca:'Abdominals',es:'Abdominales'},tag:'core',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Elevació de malucs a 1 cama',es:'Levantamiento de caderas a 1 pierna'},tag:'core',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Planxa amb flexió',es:'Plancha con flexión'},tag:'core',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Planxa lateral amb flexió',es:'Plancha lateral con flexión'},tag:'core',d:{ca:'2 sèries × 8-10 reps per costat',es:'2 series × 8-10 reps por lado'}},
+    {n:{ca:'(EXTRA) Lumbars',es:'(EXTRA) Lumbares'},tag:'extra',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+   ]},
+ ]},
+{id:'w7',badge:'7',
+ title:{ca:'Acondicionament global',es:'Acondicionamiento global'},
+ sub:{ca:'Força + Potència',es:'Fuerza + Potencia'},
+ color:'#7b83ff',
+ days:[
+  {label:{ca:'Dia 1 — Empènyer',es:'Día 1 — Empujar'},method:'MIX',
+   note:{ca:'Barreja de força i potència al nivell màxim. 3 sèries.',es:'Mezcla de fuerza y potencia a nivel máximo. 3 series.'},
+   ex:[
+    {n:{ca:'Flexions sobre pilota (alternant braços)',es:'Flexiones sobre balón (alternando brazos)'},tag:'push',d:{ca:'2 sèries × 8-10 reps per braç',es:'2 series × 8-10 reps por brazo'}},
+    {n:{ca:'Flexions profundes',es:'Flexiones profundas'},tag:'push',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Flexió vertical',es:'Flexión vertical'},tag:'push',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Dips',es:'Dips'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'(EXTRA) Flexions amb dos braços sobre pilota',es:'(EXTRA) Flexiones con ambos brazos sobre balón'},tag:'extra',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+   ]},
+  {label:{ca:'Dia 2 — Cames',es:'Día 2 — Piernas'},method:'MIX',
+   note:{ca:'Potència de cames al nivell màxim. 3 sèries.',es:'Potencia de piernas a nivel máximo. 3 series.'},
+   ex:[
+    {n:{ca:'Salts sobre plataforma',es:'Saltos sobre plataforma'},tag:'legs',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Zancades amb salt',es:'Desplantes con salto'},tag:'legs',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Sentadilla amb salt',es:'Sentadilla con salto'},tag:'legs',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Elevació amb impuls',es:'Levantamiento con impulso'},tag:'legs',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'(EXTRA) Elevació de talons',es:'(EXTRA) Elevación de talones'},tag:'extra',d:{ca:'2 sèries × 8-10 reps per cama',es:'2 series × 8-10 reps por pierna'}},
+   ]},
+  {label:{ca:'Dia 3 — Estirar',es:'Día 3 — Tirar'},method:'MIX',
+   note:{ca:'Dominades variades al nivell màxim. 3 sèries.',es:'Dominadas variadas a nivel máximo. 3 series.'},
+   ex:[
+    {n:{ca:'Dominades',es:'Dominadas'},tag:'pull',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+    {n:{ca:'Dominada horitzontal',es:'Dominada horizontal'},tag:'pull',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Dominades mans juntes',es:'Dominadas manos juntas'},tag:'pull',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+    {n:{ca:'Lumbars',es:'Lumbares'},tag:'core',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'(EXTRA) Flexió S&M',es:'(EXTRA) Flexión S&M'},tag:'extra',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+   ]},
+  {label:{ca:'Dia 4 — Core',es:'Día 4 — Core'},method:'MIX',
+   note:{ca:'Combinació de força i potència al nivell màxim. 3 sèries.',es:'Combinación de fuerza y potencia a nivel máximo. 3 series.'},
+   ex:[
+    {n:{ca:'Flexió sobre pilota (alternant braços)',es:'Flexión sobre balón (alternando brazos)'},tag:'push',d:{ca:'2 sèries × 8-10 reps per braç',es:'2 series × 8-10 reps por brazo'}},
+    {n:{ca:'Flexió espartana',es:'Flexión espartana'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Extensió de tríceps',es:'Extensión de tríceps'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Flexió hindú',es:'Flexión hindú'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'(EXTRA) Flexions "T"',es:'(EXTRA) Flexiones "T"'},tag:'extra',d:{ca:'2 sèries × 8-10 reps',es:'2 series × 8-10 reps'}},
+   ]},
+ ]},
+{id:'w8',badge:'8',
+ title:{ca:'Acondicionament global',es:'Acondicionamiento global'},
+ sub:{ca:'Força + Potència',es:'Fuerza + Potencia'},
+ color:'#7b83ff',
+ days:[
+  {label:{ca:'Dia 1 — Cames/Empènyer',es:'Día 1 — Piernas/Empujar'},method:'MIX',
+   note:{ca:'Nivell màxim. 3 sèries × 8-10 reps.',es:'Nivel máximo. 3 series × 8-10 reps.'},
+   ex:[
+    {n:{ca:'Sentadilla',es:'Sentadilla'},tag:'legs',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Zancades',es:'Desplantes'},tag:'legs',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Zancades laterals',es:'Desplantes laterales'},tag:'legs',d:{ca:'3 sèries × 5-8 reps per costat',es:'3 series × 5-8 reps por lado'}},
+    {n:{ca:'Elevació de talons',es:'Elevación de talones'},tag:'legs',d:{ca:'3 sèries × 8-10 reps per cama',es:'3 series × 8-10 reps por pierna'}},
+    {n:{ca:'(EXTRA) Sentadilla búlgara',es:'(EXTRA) Sentadilla búlgara'},tag:'extra',d:{ca:'2 sèries × 8-10 reps per cama',es:'2 series × 8-10 reps por pierna'}},
+   ]},
+  {label:{ca:'Dia 2 — Estirar',es:'Día 2 — Tirar'},method:'MIX',
+   note:{ca:'Nivell màxim. 3 sèries × 8-10 reps.',es:'Nivel máximo. 3 series × 8-10 reps.'},
+   ex:[
+    {n:{ca:'Dominada',es:'Dominada'},tag:'pull',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Dominada horitzontal',es:'Dominada horizontal'},tag:'pull',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Dominada mans juntes',es:'Dominada manos juntas'},tag:'pull',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Dominada comando',es:'Dominada comando'},tag:'pull',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'(EXTRA) Flexió vertical',es:'(EXTRA) Flexión vertical'},tag:'extra',d:{ca:'2 sèries × 5-8 reps',es:'2 series × 5-8 reps'}},
+   ]},
+  {label:{ca:'Dia 3 — Core',es:'Día 3 — Core'},method:'MIX',
+   note:{ca:'Nivell màxim. 3 sèries.',es:'Nivel máximo. 3 series.'},
+   ex:[
+    {n:{ca:'Abdominals',es:'Abdominales'},tag:'core',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Planxa',es:'Plancha'},tag:'core',d:{ca:'2 sèries × 1 min',es:'2 series × 1 min'}},
+    {n:{ca:'Lumbars',es:'Lumbares'},tag:'core',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Elevació de malucs a 1 cama',es:'Levantamiento de caderas a 1 pierna'},tag:'core',d:{ca:'3 sèries × 5-8 reps per cama',es:'3 series × 5-8 reps por pierna'}},
+    {n:{ca:'(EXTRA) Planxa lateral',es:'(EXTRA) Plancha lateral'},tag:'extra',d:{ca:'2 sèries × 1 min per costat',es:'2 series × 1 min por lado'}},
+   ]},
+  {label:{ca:'Dia 4 — Empènyer (potència)',es:'Día 4 — Empujar (potencia)'},method:'MIX',
+   note:{ca:'Nivell màxim. 3 sèries × 8-10 reps.',es:'Nivel máximo. 3 series × 8-10 reps.'},
+   ex:[
+    {n:{ca:'Flexió amb palmellada',es:'Flexión con palmada'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'Flexió vertical',es:'Flexión vertical'},tag:'push',d:{ca:'3 sèries × 5-8 reps',es:'3 series × 5-8 reps'}},
+    {n:{ca:'Flexió espartana',es:'Flexión espartana'},tag:'push',d:{ca:'2 sèries × 8-10 reps per costat',es:'2 series × 8-10 reps por lado'}},
+    {n:{ca:'Bombarder en picat',es:'Bombardero en picado'},tag:'push',d:{ca:'3 sèries × 8-10 reps',es:'3 series × 8-10 reps'}},
+    {n:{ca:'(EXTRA) Extensió de tríceps',es:'(EXTRA) Extensión de tríceps'},tag:'extra',d:{ca:'2 sèries × 15-20 reps',es:'2 series × 15-20 reps'}},
+   ]},
+ ]},
+{id:'w9',badge:'9',
+ title:{ca:'Acondicionament global',es:'Acondicionamiento global'},
+ sub:{ca:'Resistència + Tabata',es:'Resistencia + Tabata'},
+ color:'var(--ok)',
+ days:[
+  {label:{ca:'Dia 1 — Estirar/Empènyer',es:'Día 1 — Tirar/Empujar'},method:'HIIT',
+   note:{ca:'Descans mínim: 30 s entre sèries, màx 1 min entre exercicis. mrp = màximes reps possibles.',es:'Descanso mínimo: 30 s entre series, máx 1 min entre ejercicios. mrp = máximas reps posibles.'},
+   ex:[
+    {n:{ca:'Superset Flexió + Dominada (nivell màxim)',es:'Superset Flexión + Dominada (nivel máximo)'},tag:'push',d:{ca:'2 supersets · mrp',es:'2 supersets · mrp'}},
+    {n:{ca:'Sentadilles (nivell màxim)',es:'Sentadillas (nivel máximo)'},tag:'legs',d:{ca:'2 sèries · mrp',es:'2 series · mrp'}},
+    {n:{ca:'Tabata: Flexions verticals (nivell màx −1)',es:'Tabata: Flexiones verticales (nivel máx −1)'},tag:'push',d:{ca:'8 × 20 s feina / 10 s descans',es:'8 × 20 s trabajo / 10 s descanso'}},
+    {n:{ca:'Elevació amb impuls',es:'Levantamiento con impulso'},tag:'legs',d:{ca:'2 sèries × 10 reps',es:'2 series × 10 reps'}},
+    {n:{ca:'Saltar corda',es:'Saltar cuerda'},tag:'legs',d:{ca:'2 sèries × 100 salts',es:'2 series × 100 saltos'}},
+   ]},
+  {label:{ca:'Dia 2 — Cames/Core',es:'Día 2 — Piernas/Core'},method:'HIIT',
+   note:{ca:'Descans mínim. mrp = màximes reps possibles.',es:'Descanso mínimo. mrp = máximas reps posibles.'},
+   ex:[
+    {n:{ca:'Bombarder en picat',es:'Bombardero en picado'},tag:'push',d:{ca:'3 sèries · mrp',es:'3 series · mrp'}},
+    {n:{ca:'Dominada horitzontal',es:'Dominada horizontal'},tag:'pull',d:{ca:'3 sèries · mrp',es:'3 series · mrp'}},
+    {n:{ca:'Zancades laterals',es:'Desplantes laterales'},tag:'legs',d:{ca:'3 sèries · mrp',es:'3 series · mrp'}},
+    {n:{ca:'Saltar corda',es:'Saltar cuerda'},tag:'legs',d:{ca:'2 sèries × 100 salts',es:'2 series × 100 saltos'}},
+    {n:{ca:'Escaladors inversos',es:'Escaladores inversos'},tag:'core',d:{ca:'2 sèries × 20',es:'2 series × 20'}},
+   ]},
+  {label:{ca:'Dia 3 — Core',es:'Día 3 — Core'},method:'HIIT',
+   note:{ca:'Descans mínim. mrp = màximes reps possibles.',es:'Descanso mínimo. mrp = máximas reps posibles.'},
+   ex:[
+    {n:{ca:'Abdominals (nivell màxim)',es:'Abdominales (nivel máximo)'},tag:'core',d:{ca:'3 sèries · mrp',es:'3 series · mrp'}},
+    {n:{ca:'Abdominals en V',es:'Abdominales en V'},tag:'core',d:{ca:'3 sèries · mrp',es:'3 series · mrp'}},
+    {n:{ca:'Lumbars',es:'Lumbares'},tag:'core',d:{ca:'3 sèries · mrp',es:'3 series · mrp'}},
+    {n:{ca:'Burpees',es:'Burpees'},tag:'core',d:{ca:'2 sèries × 10',es:'2 series × 10'}},
+    {n:{ca:'Escaladors',es:'Escaladores'},tag:'core',d:{ca:'2 sèries × 20',es:'2 series × 20'}},
+   ]},
+  {label:{ca:'Dia 4 — Global',es:'Día 4 — Global'},method:'HIIT',
+   note:{ca:'Descans mínim. Circuit complet.',es:'Descanso mínimo. Circuito completo.'},
+   ex:[
+    {n:{ca:'Flexions (nivell màxim)',es:'Flexiones (nivel máximo)'},tag:'push',d:{ca:'mrp',es:'mrp'}},
+    {n:{ca:'Sentadilles (nivell màxim)',es:'Sentadillas (nivel máximo)'},tag:'legs',d:{ca:'mrp',es:'mrp'}},
+    {n:{ca:'Dominades (nivell màxim)',es:'Dominadas (nivel máximo)'},tag:'pull',d:{ca:'mrp',es:'mrp'}},
+    {n:{ca:'Abdominals (nivell màxim)',es:'Abdominales (nivel máximo)'},tag:'core',d:{ca:'mrp',es:'mrp'}},
+    {n:{ca:'Saltar corda',es:'Saltar cuerda'},tag:'legs',d:{ca:'200 salts',es:'200 saltos'}},
+   ]},
+ ]},
+{id:'w10',badge:'10',
+ title:{ca:'Acondicionament global',es:'Acondicionamiento global'},
+ sub:{ca:'HIIT pur',es:'HIIT puro'},
+ color:'var(--danger)',
+ days:[
+  {label:{ca:'Dia 1 — HIIT',es:'Día 1 — HIIT'},method:'HIIT',
+   note:{ca:'2-4 rondes sense descans entre exercicis · 1 min entre rondes · anota el temps total.',es:'2-4 rondas sin descanso entre ejercicios · 1 min entre rondas · anota el tiempo total.'},
+   ex:[
+    {n:{ca:'20 flexions',es:'20 flexiones'},tag:'push',d:{ca:'',es:''}},
+    {n:{ca:'30 sentadilles',es:'30 sentadillas'},tag:'legs',d:{ca:'',es:''}},
+    {n:{ca:'10 dominades',es:'10 dominadas'},tag:'pull',d:{ca:'',es:''}},
+    {n:{ca:'40 escaladors (20 per cama)',es:'40 escaladores (20 por pierna)'},tag:'core',d:{ca:'',es:''}},
+    {n:{ca:'100 salts de corda',es:'100 saltos de cuerda'},tag:'legs',d:{ca:'',es:''}},
+   ]},
+  {label:{ca:'Dia 2 — HIIT',es:'Día 2 — HIIT'},method:'HIIT',
+   note:{ca:'2-4 rondes sense descans entre exercicis · 1 min entre rondes · anota el temps.',es:'2-4 rondas sin descanso entre ejercicios · 1 min entre rondas · anota el tiempo.'},
+   ex:[
+    {n:{ca:'15 burpees',es:'15 burpees'},tag:'core',d:{ca:'',es:''}},
+    {n:{ca:'20 zancades amb salt',es:'20 desplantes con salto'},tag:'legs',d:{ca:'',es:''}},
+    {n:{ca:'15 flexions verticals',es:'15 flexiones verticales'},tag:'push',d:{ca:'',es:''}},
+    {n:{ca:'20 abdominals en V',es:'20 abdominales en V'},tag:'core',d:{ca:'',es:''}},
+    {n:{ca:'100 salts de corda',es:'100 saltos de cuerda'},tag:'legs',d:{ca:'',es:''}},
+   ]},
+  {label:{ca:'Dia 3 — HIIT',es:'Día 3 — HIIT'},method:'HIIT',
+   note:{ca:'2-4 rondes sense descans entre exercicis · 1 min entre rondes.',es:'2-4 rondas sin descanso entre ejercicios · 1 min entre rondas.'},
+   ex:[
+    {n:{ca:'10 dominades',es:'10 dominadas'},tag:'pull',d:{ca:'',es:''}},
+    {n:{ca:'20 flexions amb palmellada',es:'20 flexiones con palmada'},tag:'push',d:{ca:'',es:''}},
+    {n:{ca:'30 sentadilles amb salt',es:'30 sentadillas con salto'},tag:'legs',d:{ca:'',es:''}},
+    {n:{ca:'1 min planxa',es:'1 min plancha'},tag:'core',d:{ca:'',es:''}},
+    {n:{ca:'100 salts de corda',es:'100 saltos de cuerda'},tag:'legs',d:{ca:'',es:''}},
+   ]},
+  {label:{ca:'Dia 4 — HIIT final',es:'Día 4 — HIIT final'},method:'HIIT',
+   note:{ca:'2-4 rondes sense descans entre exercicis · 1 min entre rondes · supera el teu temps!',es:'2-4 rondas sin descanso entre ejercicios · 1 min entre rondas · ¡supera tu tiempo!'},
+   ex:[
+    {n:{ca:'10 burpees',es:'10 burpees'},tag:'core',d:{ca:'',es:''}},
+    {n:{ca:'20 flexions',es:'20 flexiones'},tag:'push',d:{ca:'',es:''}},
+    {n:{ca:'20 dominades horitzontals',es:'20 dominadas horizontales'},tag:'pull',d:{ca:'',es:''}},
+    {n:{ca:'40 zancades (20 per cama)',es:'40 desplantes (20 por pierna)'},tag:'legs',d:{ca:'',es:''}},
+    {n:{ca:'200 salts de corda',es:'200 saltos de cuerda'},tag:'legs',d:{ca:'',es:''}},
+   ]},
+ ]},
 ];
 
-// 3-day variant: only 3 of the 4 days (skip D4, D4 becomes D1 of next week)
-function getPlanForDays(days, weekBlock){
-  if(days>=4) return weekBlock.days;
-  // Use first 3 days
-  return weekBlock.days.slice(0,3);
-}
-
-// ============ EXERCISES DATA ============
-const EX={
-  flexion:{name:'Flexiones',muscle:'Pecho · Tríceps · Hombros · Core',videoId:'Yd79XBIdDnI',
-    desc:'Cuerpo recto, abdominales tensos. Manos a la anchura de los hombros, codos a 45°. Baja hasta casi rozar el suelo. Inspira al bajar, espira al subir.',
-    inj:{shoulder:'⚠️ Hombros: Agarre estrecho. Evita codos muy abiertos.',wrist:'⚠️ Muñecas: Sobre puños cerrados.',lumbar:'⚠️ Lumbares: Core muy tenso. Eleva las manos si hay dolor.'},
-    allLevels:[
-      {n:1,name:'Manos elevadas (mesa/pared)',rm:'30 reps',rf:'20 reps',weeks:'2–4 sem'},
-      {n:2,name:'De rodillas',rm:'30 reps',rf:'20 reps',weeks:'3–6 sem'},
-      {n:3,name:'Flexión clásica',rm:'30 reps',rf:'20 reps',weeks:'4–8 sem'},
-      {n:4,name:'Pies elevados',rm:'30 reps',rf:'20 reps',weeks:'6–12 sem'},
-      {n:5,name:'Con una mano',rm:'10 reps/m',rf:'8 reps/m',weeks:'Meses'}
+// ============ EXERCISE LEVELS (the 5 basic exercises) ============
+const EX = {
+  flexion:{
+    name:{ca:'Flexions',es:'Flexiones'},
+    muscle:{ca:'Pit, tríceps, espatlles',es:'Pecho, tríceps, hombros'},
+    vid:'IODxDxX7oi4',
+    desc:{ca:'Mans una mica més amples que les espatlles, cos recte com una taula. Baixa fins quasi tocar el terra amb el pit i puja.',es:'Manos algo más anchas que los hombros, cuerpo recto como una tabla. Baja hasta casi tocar el suelo con el pecho y sube.'},
+    levels:[
+     {t:{ca:'Flexions a la paret',es:'Flexiones en la pared'},r:{m:'25-30',f:'25-30'}},
+     {t:{ca:'Flexions inclinades (taula/cadira)',es:'Flexiones inclinadas (mesa/silla)'},r:{m:'20-25',f:'15-20'}},
+     {t:{ca:'Flexions clàssiques',es:'Flexiones clásicas'},r:{m:'15-20',f:'10-15'}},
+     {t:{ca:'Flexions amb peus elevats',es:'Flexiones con pies elevados'},r:{m:'12-15',f:'8-12'}},
+     {t:{ca:'Flexions a una mà (progressió)',es:'Flexiones a una mano (progresión)'},r:{m:'5-8',f:'3-6'}},
     ]},
-  dominada:{name:'Dominadas',muscle:'Dorsales · Bíceps · Espalda media',videoId:'637SzIkGrIg',
-    desc:'Desde brazos estirados, tira con codos hacia caderas. Barbilla por encima de la barra. Baja lento y controlado.',
-    inj:{shoulder:'⚠️ Hombros: Prefiere agarre supino.',wrist:'⚠️ Muñecas: Usa agarre neutro si es posible.'},
-    allLevels:[
-      {n:1,name:'Colgarse (30 seg)',rm:'30 seg',rf:'30 seg',weeks:'2–4 sem'},
-      {n:2,name:'Dominada australiana',rm:'10 reps',rf:'10 reps',weeks:'4–8 sem'},
-      {n:3,name:'Dominada clásica',rm:'10 reps',rf:'8 reps',weeks:'6–12 sem'},
-      {n:4,name:'Dominada lenta / con lastre',rm:'6 reps',rf:'5 reps',weeks:'3–6 meses'},
-      {n:5,name:'A una mano (asistida)',rm:'3 reps/m',rf:'3 reps/m',weeks:'6–12 meses'}
+  dominada:{
+    name:{ca:'Dominades',es:'Dominadas'},
+    muscle:{ca:'Esquena, bíceps',es:'Espalda, bíceps'},
+    vid:'eGo4IYlbE5g',
+    desc:{ca:'Penjat de la barra amb agafada prona, puja fins que la barbeta passi la barra i baixa controlat.',es:'Colgado de la barra con agarre prono, sube hasta que la barbilla pase la barra y baja controlado.'},
+    levels:[
+     {t:{ca:'Penjar-se de la barra',es:'Colgarse de la barra'},r:{m:'30-60 s',f:'30-60 s'}},
+     {t:{ca:'Dominades horitzontals (australianes)',es:'Dominadas horizontales (australianas)'},r:{m:'12-15',f:'10-12'}},
+     {t:{ca:'Dominades negatives',es:'Dominadas negativas'},r:{m:'8-10',f:'6-8'}},
+     {t:{ca:'Dominades completes',es:'Dominadas completas'},r:{m:'6-10',f:'4-8'}},
+     {t:{ca:'Dominada a una mà (progressió)',es:'Dominada a una mano (progresión)'},r:{m:'3-5',f:'2-4'}},
     ]},
-  sentadilla:{name:'Sentadillas',muscle:'Cuádriceps · Glúteos · Isquiotibiales',videoId:'wtgZEaaWc7k',
-    desc:'Pies ligeramente más anchos que los hombros. Baja hasta muslos paralelos. Rodillas alineadas. Talones en el suelo.',
-    inj:{knee:'⚠️ Rodillas: Limita a 90°. Evita pistol squat.',lumbar:'⚠️ Lumbares: Espalda erguida, mira al frente.'},
-    allLevels:[
-      {n:1,name:'Media con apoyo',rm:'25 reps',rf:'25 reps',weeks:'2–4 sem'},
-      {n:2,name:'Profunda completa',rm:'30 reps',rf:'30 reps',weeks:'3–6 sem'},
-      {n:3,name:'Búlgara (pie elevado)',rm:'10/pierna',rf:'10/pierna',weeks:'6–12 sem'},
-      {n:4,name:'Pistol asistida',rm:'6/pierna',rf:'6/pierna',weeks:'3–6 meses'},
-      {n:5,name:'Pistol libre',rm:'5/pierna',rf:'5/pierna',weeks:'6–12 meses'}
+  sentadilla:{
+    name:{ca:'Sentadilles',es:'Sentadillas'},
+    muscle:{ca:'Quàdriceps, glutis',es:'Cuádriceps, glúteos'},
+    vid:'aclHkVaku9U',
+    desc:{ca:'Peus a l\'amplada de les espatlles, baixa com si t\'asseguessis fins que les cuixes quedin paral·leles al terra.',es:'Pies a la anchura de los hombros, baja como si te sentaras hasta que los muslos queden paralelos al suelo.'},
+    levels:[
+     {t:{ca:'Sentadilla a cadira',es:'Sentadilla a silla'},r:{m:'25-30',f:'25-30'}},
+     {t:{ca:'Sentadilla completa',es:'Sentadilla completa'},r:{m:'20-25',f:'20-25'}},
+     {t:{ca:'Sentadilla búlgara',es:'Sentadilla búlgara'},r:{m:'12-15',f:'10-12'}},
+     {t:{ca:'Pistol assistida',es:'Pistol asistida'},r:{m:'8-10',f:'6-8'}},
+     {t:{ca:'Pistol (sentadilla a una cama)',es:'Pistol (sentadilla a una pierna)'},r:{m:'5-8',f:'3-6'}},
     ]},
-  abdominales:{name:'Core / Abdominales',muscle:'Recto abdominal · Oblicuos · Core profundo',videoId:'7kPvnjZwN9Q',
-    desc:'Zona lumbar pegada al suelo. Sube espirando, baja sin tocar el suelo. Control constante, sin impulso.',
-    inj:{lumbar:'⚠️ Lumbares: Sustituye por PLANCHA isométrica y levantamiento de caderas.'},
-    allLevels:[
-      {n:1,name:'Rodillas en silla',rm:'30 reps',rf:'30 reps',weeks:'2–4 sem'},
-      {n:2,name:'Piernas encogidas en suelo',rm:'30 reps',rf:'30 reps',weeks:'3–6 sem'},
-      {n:3,name:'Piernas estiradas en suelo',rm:'25 reps',rf:'25 reps',weeks:'4–8 sem'},
-      {n:4,name:'Piernas colgado (encogidas)',rm:'15 reps',rf:'15 reps',weeks:'6–12 sem'},
-      {n:5,name:'Piernas colgado (estiradas)',rm:'10 reps',rf:'10 reps',weeks:'3–6 meses'}
+  abdominal:{
+    name:{ca:'Abdominals',es:'Abdominales'},
+    muscle:{ca:'Core, recte abdominal',es:'Core, recto abdominal'},
+    vid:'1fbU_MkV7NE',
+    desc:{ca:'Estirat de panxa amunt, aixeca el tronc o les cames controlant el moviment amb l\'abdomen.',es:'Tumbado boca arriba, levanta el tronco o las piernas controlando el movimiento con el abdomen.'},
+    levels:[
+     {t:{ca:'Crunch bàsic',es:'Crunch básico'},r:{m:'20-25',f:'20-25'}},
+     {t:{ca:'Elevació de cames doblegades',es:'Elevación de piernas flexionadas'},r:{m:'15-20',f:'15-20'}},
+     {t:{ca:'Elevació de cames rectes',es:'Elevación de piernas rectas'},r:{m:'12-15',f:'10-15'}},
+     {t:{ca:'Abdominals en V',es:'Abdominales en V'},r:{m:'10-12',f:'8-10'}},
+     {t:{ca:'Elevació de cames penjat',es:'Elevación de piernas colgado'},r:{m:'8-10',f:'5-8'}},
     ]},
-  flexion_vertical:{name:'Flexiones Pike / Verticales',muscle:'Hombros · Trapecios · Tríceps',videoId:'_1ShIsVwULo',
-    desc:'Forma una V invertida. Baja la cabeza hacia el suelo doblando los codos. Tronco se mueve verticalmente.',
-    inj:{shoulder:'⚠️ Hombros: Sustituye por dips en silla.',neck:'⚠️ Cervicales: Sustituye por fondos en silla.'},
-    allLevels:[
-      {n:1,name:'Pike con manos elevadas',rm:'8 reps',rf:'8 reps',weeks:'3–5 sem'},
-      {n:2,name:'Pike estándar en suelo',rm:'10 reps',rf:'10 reps',weeks:'4–8 sem'},
-      {n:3,name:'Pike con pies elevados',rm:'8 reps',rf:'8 reps',weeks:'6–12 sem'},
-      {n:4,name:'Pino asistido (pared)',rm:'5 reps',rf:'5 reps',weeks:'3–6 meses'},
-      {n:5,name:'Flexión a pino libre',rm:'3 reps',rf:'3 reps',weeks:'6–12 meses'}
+  flexion_vertical:{
+    name:{ca:'Flexions verticals',es:'Flexiones verticales'},
+    muscle:{ca:'Espatlles, tríceps',es:'Hombros, tríceps'},
+    vid:'tQNkN3D8jZw',
+    desc:{ca:'En posició de pica (cul amunt), baixa el cap cap al terra doblegant els colzes i empeny amunt.',es:'En posición de pica (culo arriba), baja la cabeza hacia el suelo doblando los codos y empuja arriba.'},
+    levels:[
+     {t:{ca:'Pica amb mans elevades',es:'Pica con manos elevadas'},r:{m:'12-15',f:'10-12'}},
+     {t:{ca:'Pica al terra',es:'Pica en el suelo'},r:{m:'10-12',f:'8-10'}},
+     {t:{ca:'Pica amb peus elevats',es:'Pica con pies elevados'},r:{m:'8-10',f:'6-8'}},
+     {t:{ca:'Flexió vertical a la paret',es:'Flexión vertical en la pared'},r:{m:'6-8',f:'4-6'}},
+     {t:{ca:'Pino lliure (progressió)',es:'Pino libre (progresión)'},r:{m:'3-5',f:'2-4'}},
     ]},
-  plancha:{name:'Plancha Isométrica',muscle:'Core completo · Lumbares · Glúteos',videoId:'x_nQjXFLcgA',
-    desc:'Codos bajo los hombros, puntas de pies. Cuerpo recto. Abdominales y glúteos apretados. Respira lento.',
-    inj:{shoulder:'⚠️ Hombros: Solo sobre codos.',wrist:'⚠️ Muñecas: Siempre sobre codos.'},
-    allLevels:[
-      {n:1,name:'Sobre rodillas (30 seg)',rm:'30 seg',rf:'30 seg',weeks:'2–3 sem'},
-      {n:2,name:'Completa (60 seg)',rm:'60 seg',rf:'60 seg',weeks:'3–6 sem'},
-      {n:3,name:'Lateral (45 seg/lado)',rm:'45 seg/lado',rf:'45 seg/lado',weeks:'4–8 sem'},
-      {n:4,name:'Con extensión alterna',rm:'30 seg',rf:'30 seg',weeks:'6–12 sem'},
-      {n:5,name:'A un brazo',rm:'20 seg/lado',rf:'20 seg/lado',weeks:'3–6 meses'}
-    ]},
-  desplante:{name:'Desplantes / Zancadas',muscle:'Cuádriceps · Glúteos · Estabilizadores',videoId:'ZlIjqE2nMZw',
-    desc:'Paso largo hacia adelante. Rodilla trasera casi toca el suelo. Rodilla delantera alineada con tobillo. Torso erguido.',
-    inj:{knee:'⚠️ Rodillas: Reduce el rango. Evita con salto.',lumbar:'⚠️ Lumbares: Torso siempre erguido.'},
-    allLevels:[
-      {n:1,name:'Corto con apoyo',rm:'10/pierna',rf:'10/pierna',weeks:'2–4 sem'},
-      {n:2,name:'Completo',rm:'15/pierna',rf:'15/pierna',weeks:'3–6 sem'},
-      {n:3,name:'Lateral',rm:'12/pierna',rf:'12/pierna',weeks:'4–8 sem'},
-      {n:4,name:'Con salto',rm:'10/pierna',rf:'10/pierna',weeks:'6–12 sem'},
-      {n:5,name:'Búlgaro lastrado',rm:'8/pierna',rf:'8/pierna',weeks:'3–6 meses'}
-    ]}
 };
+const EX_ORDER=['flexion','dominada','sentadilla','abdominal','flexion_vertical'];
 
-// Map plan exercise names to EX keys for finding video/desc
-const EX_MAP={
-  'flexiones':'flexion','dominadas':'dominada','dominada':'dominada','sentadillas':'sentadilla','sentadilla':'sentadilla',
-  'abdominales':'abdominales','plancha':'plancha','desplantes':'desplante','desplante':'desplante',
-  'flexiones verticales':'flexion_vertical','pike':'flexion_vertical','flexión vertical':'flexion_vertical'
-};
-function matchEx(name){
-  const n=name.toLowerCase();
-  for(const k of Object.keys(EX_MAP)){if(n.includes(k))return EX_MAP[k];}
-  return null;
-}
+// ============ GLOSSARY ============
+const GLOSS = [
+ {t:{ca:'Piràmide',es:'Pirámide'},d:{ca:'Mètode on fas 1 rep, descanses 1 s, 2 reps, descanses 2 s, i així fins al màxim, després baixes. Durant 7 min per exercici.',es:'Método donde haces 1 rep, descansas 1 s, 2 reps, descansas 2 s, y así hasta el máximo, luego bajas. Durante 7 min por ejercicio.'}},
+ {t:{ca:'Superset',es:'Superset'},d:{ca:'Dos exercicis seguits sense descans entre ells. Descanses només en acabar la parella.',es:'Dos ejercicios seguidos sin descanso entre ellos. Descansas solo al terminar la pareja.'}},
+ {t:{ca:'mrp (màximes reps possibles)',es:'mrp (máximas reps posibles)'},d:{ca:'Fes totes les repeticions que puguis amb bona tècnica fins a la fatiga.',es:'Haz todas las repeticiones que puedas con buena técnica hasta la fatiga.'}},
+ {t:{ca:'Tabata',es:'Tabata'},d:{ca:'Format HIIT: 8 rondes de 20 s de feina i 10 s de descans (4 min en total).',es:'Formato HIIT: 8 rondas de 20 s de trabajo y 10 s de descanso (4 min en total).'}},
+ {t:{ca:'HIIT',es:'HIIT'},d:{ca:'Entrenament d\'intervals d\'alta intensitat. Esforç màxim amb descansos curts.',es:'Entrenamiento de intervalos de alta intensidad. Esfuerzo máximo con descansos cortos.'}},
+ {t:{ca:'Nivell màxim',es:'Nivel máximo'},d:{ca:'El nivell més alt d\'un exercici que pots fer amb bona tècnica un nombre de reps determinat.',es:'El nivel más alto de un ejercicio que puedes hacer con buena técnica un número de reps determinado.'}},
+ {t:{ca:'Fase concèntrica',es:'Fase concéntrica'},d:{ca:'La part de l\'exercici on el múscul s\'escurça (pujar a la flexió). En potència es fa ràpid.',es:'La parte del ejercicio donde el músculo se acorta (subir en la flexión). En potencia se hace rápido.'}},
+ {t:{ca:'Fase excèntrica',es:'Fase excéntrica'},d:{ca:'La part on el múscul s\'allarga (baixar a la flexió). Es fa lenta i controlada.',es:'La parte donde el músculo se alarga (bajar en la flexión). Se hace lenta y controlada.'}},
+ {t:{ca:'Pliomètric',es:'Pliométrico'},d:{ca:'Moviment explosiu amb salt o impuls (flexió amb palmellada, salt al calaix).',es:'Movimiento explosivo con salto o impulso (flexión con palmada, salto al cajón).'}},
+ {t:{ca:'Core',es:'Core'},d:{ca:'Conjunt de músculs del tronc (abdomen, lumbars, obliquus) que estabilitzen el cos.',es:'Conjunto de músculos del tronco (abdomen, lumbares, oblicuos) que estabilizan el cuerpo.'}},
+ {t:{ca:'Empènyer (push)',es:'Empujar (push)'},d:{ca:'Exercicis on empenys el pes lluny del cos: flexions, fons, flexions verticals.',es:'Ejercicios donde empujas el peso lejos del cuerpo: flexiones, fondos, flexiones verticales.'}},
+ {t:{ca:'Estirar (pull)',es:'Tirar (pull)'},d:{ca:'Exercicis on estires el pes cap al cos: dominades, dominades horitzontals.',es:'Ejercicios donde tiras del peso hacia el cuerpo: dominadas, dominadas horizontales.'}},
+ {t:{ca:'Agafada prona',es:'Agarre prono'},d:{ca:'Palmells mirant cap endavant (cap a fora). La més habitual a les dominades.',es:'Palmas mirando hacia adelante (hacia fuera). La más habitual en las dominadas.'}},
+ {t:{ca:'Agafada supina',es:'Agarre supino'},d:{ca:'Palmells mirant cap a tu. Activa més el bíceps.',es:'Palmas mirando hacia ti. Activa más el bíceps.'}},
+ {t:{ca:'Bombarder en picat',es:'Bombardero en picado'},d:{ca:'Flexió que comença en pica, baixa el cap en arc cap endavant i acaba amb el pit amunt.',es:'Flexión que empieza en pica, baja la cabeza en arco hacia adelante y acaba con el pecho arriba.'}},
+ {t:{ca:'Flexió S&M',es:'Flexión S&M'},d:{ca:'Exercici de lumbars/glutis: estirat de panxa avall, aixeca alhora braços i cames.',es:'Ejercicio de lumbares/glúteos: tumbado boca abajo, levanta a la vez brazos y piernas.'}},
+ {t:{ca:'Escaladors',es:'Escaladores'},d:{ca:'En posició de planxa, porta els genolls al pit alternant ràpidament.',es:'En posición de plancha, lleva las rodillas al pecho alternando rápidamente.'}},
+];
 
-// ============ LEVELS ============
-function getExLvl(key){return(EX_LEVELS[key]&&EX_LEVELS[key].lvl)||P.level;}
+// ============ STATE ============
+let LANG = localStorage.getItem('cf_lang') || 'ca';
+let profile = JSON.parse(localStorage.getItem('cf_profile') || 'null');
+let history = JSON.parse(localStorage.getItem('cf_history') || '[]');
+let exLevels = JSON.parse(localStorage.getItem('cf_levels') || 'null');
+let sessionCount = parseInt(localStorage.getItem('cf_sescount') || '0');
+let onbStep = 0;
+let onbData = {level:null, days:4, build:null, injuries:[], name:''};
+let curSession = null;
+let curSessionDone = {};
+let calDate = new Date();
 
-function setExLvl(key,n){
-  const prev=getExLvl(key);
-  if(!EX_LEVELS[key])EX_LEVELS[key]={lvl:P.level,date:null,history:[]};
-  EX_LEVELS[key].history.push({lvl:prev,date:EX_LEVELS[key].date});
-  EX_LEVELS[key].lvl=n;
-  EX_LEVELS[key].date=new Date().toISOString();
-  EX_LEVELS[key].readyForUpgrade=false;
-  if(EX_COMPLETIONS[key])EX_COMPLETIONS[key]=[];
-  save();
-  const e=EX[key];const dir=n>prev?'⬆️ Subiste':'🔄 Ajustado';
-  showToast(`${dir}: ${e?e.name:key} → Nivel ${n}`);
-  renderProg();renderLvlUpBanners();
-}
+if(!exLevels){ exLevels = {}; EX_ORDER.forEach(k=>exLevels[k]=1); }
 
-function confirmLvlChange(key,n){
-  const e=EX[key];const cur=getExLvl(key);
-  const lv=e.allLevels[n-1]||{name:'Nivel '+n};
-  showModal(n>cur?'⬆️':'🔄',n>cur?'SUBIR DE NIVEL':'AJUSTAR NIVEL',
-    `<strong>${e.name}</strong><br><br>Nivel actual: ${cur} — ${(e.allLevels[cur-1]||{}).name||''}<br>Nuevo nivel: ${n} — ${lv.name}<br><br>Todas las sesiones se actualizarán automáticamente.`,
-    [{label:'CONFIRMAR',fn:()=>setExLvl(key,n)},{label:'Cancelar',fn:null,style:'btn2'}]);
-}
+// ============ I18N HELPER ============
+function L(obj){ if(obj==null) return ''; if(typeof obj==='string') return obj; return obj[LANG]!==undefined?obj[LANG]:(obj.ca||''); }
+function t(key){ const o=UI[key]; return o?L(o):key; }
 
-function trackCompletion(key){
-  if(!EX_COMPLETIONS[key])EX_COMPLETIONS[key]=[];
-  EX_COMPLETIONS[key].push(new Date().toISOString());
-  if(EX_COMPLETIONS[key].length>10)EX_COMPLETIONS[key].shift();
-  const cur=getExLvl(key);
-  if(cur<5&&EX_COMPLETIONS[key].length>=3){
-    if(!EX_LEVELS[key])EX_LEVELS[key]={lvl:cur,date:null,history:[]};
-    EX_LEVELS[key].readyForUpgrade=true;
-    save();
-  }
-}
-
-function getUpgradeReady(){return Object.keys(EX).filter(k=>EX_LEVELS[k]&&EX_LEVELS[k].readyForUpgrade&&getExLvl(k)<5);}
-
-function renderLvlUpBanners(){
-  const ready=getUpgradeReady();
-  const el=document.getElementById('lvlup-banners');
-  if(!ready.length){el.innerHTML='';return;}
-  el.innerHTML=ready.map(key=>{
-    const e=EX[key];const cur=getExLvl(key);const nextN=cur+1;
-    const nextLv=e.allLevels[nextN-1]||{name:'Nivel '+nextN};
-    return`<div class="lvlup-banner">
-      <div style="font-size:1.6rem;flex-shrink:0">🏆</div>
-      <div style="flex:1">
-        <div class="lvlup-title">¡Listo para subir nivel! — ${e.name}</div>
-        <div class="lvlup-sub">Has completado este ejercicio 3 sesiones seguidas. ¿Pasas al Nivel ${nextN}: <em>${nextLv.name}</em>?</div>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn-uplvl" onclick="confirmLvlChange('${key}',${nextN})">SUBIR ↑</button>
-        <button class="btn-dismiss" onclick="dismissUpgrade('${key}')">Ignorar</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function dismissUpgrade(key){
-  if(EX_LEVELS[key])EX_LEVELS[key].readyForUpgrade=false;
-  if(EX_COMPLETIONS[key])EX_COMPLETIONS[key]=[];
-  save();renderLvlUpBanners();
-}
-
-// ============ ONBOARDING ============
-function goOnb(){showScr('so');renderDots();showStep(1);}
-function renderDots(){
-  const el=document.getElementById('dots');el.innerHTML='';
-  for(let i=1;i<=STEPS;i++){const d=document.createElement('div');d.className='dot'+(i<curS?' done':i===curS?' cur':'');el.appendChild(d);}
-}
-function showStep(n){
-  for(let i=1;i<=STEPS;i++){const e=document.getElementById('os'+i);if(e)e.style.display=i===n?'block':'none';}
-  document.getElementById('bprev').style.display=n>1?'inline-block':'none';
-  document.getElementById('bnext').textContent=n===STEPS?'FINALIZAR →':'SIGUIENTE →';
-  renderDots();
-}
-function pick(f,v,el){P[f]=v;el.closest('.grid2').querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
-function pickD(n,el){P.days=n;document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
-function togInj(i,el){
-  if(i==='none'){P.injuries=[];document.querySelectorAll('.injbtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');return;}
-  document.querySelector('[data-i="none"]').classList.remove('sel');
-  const idx=P.injuries.indexOf(i);
-  if(idx>=0){P.injuries.splice(idx,1);el.classList.remove('sel');}else{P.injuries.push(i);el.classList.add('sel');}
-}
-function nextS(){
-  if(curS===1&&!P.level){alert('Selecciona tu nivel');return;}
-  if(curS===2&&!P.days){alert('Selecciona los días');return;}
-  if(curS===3&&!P.sex){alert('Selecciona una opción');return;}
-  if(curS<STEPS){curS++;showStep(curS);}
-  else{P.name=document.getElementById('ninp').value.trim()||'Atleta';save();buildDash();showScr('sd');}
-}
-function prevS(){if(curS>1){curS--;showStep(curS);}}
-
-// ============ DASHBOARD ============
-function buildDash(){renderProfile();renderLvlUpBanners();renderStats();renderProgramWeeks();renderCal();renderProg();renderHist();renderRun();}
-
-function renderProfile(){
-  const lm={1:'Principiante',2:'Intermedio',3:'Avanzado',4:'Atleta'};
-  const im={lumbar:'Lumbar',shoulder:'Hombro',knee:'Rodilla',wrist:'Muñeca',neck:'Cervicales'};
-  const injTxt=P.injuries.length===0?'Sin dolencias':P.injuries.map(i=>im[i]||i).join(', ');
-  document.getElementById('pcardel').innerHTML=`
-    <div class="avatar">${P.name.charAt(0).toUpperCase()}</div>
-    <div style="flex:1">
-      <div class="pname">${P.name}</div>
-      <div class="pmeta">${lm[P.level]} · ${P.days} días/sem · ${injTxt}</div>
-      <div style="margin-top:8px"><span class="badge">${lm[P.level]}</span>${P.injuries.length>0?'<span class="badge red" style="margin-left:6px">⚠ Adaptado</span>':''}</div>
-    </div>
-    <button onclick="resetP()" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;text-decoration:underline;align-self:flex-start">Editar</button>
-  `;
-}
-
-function renderStats(){
-  const now=new Date();
-  const week=HIST.filter(h=>new Date(h.date)>=new Date(now-7*864e5)).length;
-  const streak=calcStreak();
-  document.getElementById('statsrow').innerHTML=`
-    <div class="sbox"><div class="snum">${HIST.length}</div><div class="slbl">Total sesiones</div></div>
-    <div class="sbox"><div class="snum">${week}</div><div class="slbl">Esta semana</div></div>
-    <div class="sbox"><div class="snum">${P.days}</div><div class="slbl">Días/sem</div></div>
-    <div class="sbox"><div class="snum">${streak}</div><div class="slbl">Racha (sem)</div></div>
-  `;
-}
-
-function calcStreak(){
-  let s=0;const now=new Date();
-  for(let w=0;w<=20;w++){
-    const a=new Date(now-(w+1)*7*864e5),b=new Date(now-w*7*864e5);
-    if(HIST.filter(h=>{const d=new Date(h.date);return d>=a&&d<=b;}).length>0)s++;
-    else if(w>0)break;
-  }
-  return s;
-}
-
-const METHOD_LABELS={PYR:'🔺 Pirámide 7 min',SUP:'⚡ Superset',SER:'💪 Series fuerza',POT:'🚀 Potencia',HIIT:'🔥 HIIT',EXTRA:'➕ Extra (opcional)'};
-const METHOD_CLASSES={PYR:'method-pyr',SUP:'method-sup',SER:'method-ser',POT:'method-pyr',HIIT:'method-hiit',EXTRA:'method-extra'};
-const TAG_LABELS={push:'Empujar',pull:'Tirar',legs:'Piernas',core:'Core'};
-
-function renderProgramWeeks(){
-  const today=new Date().toDateString();
-  let html='';
-  PROGRAM.forEach((block,bi)=>{
-    const days=getPlanForDays(P.days,block);
-    // count sessions done today in this block
-    const doneSessions=HIST.filter(h=>h.blockIdx===bi&&new Date(h.date).toDateString()===today).map(h=>h.dayIdx);
-    html+=`<div class="week-block">
-      <div class="week-hdr" onclick="togWeek(${bi})">
-        <div class="week-num">SEM<br>${block.weeks}</div>
-        <div class="week-info">
-          <div class="week-title" style="color:${block.color}">${block.label}</div>
-          <div class="week-sub">${block.method}</div>
-        </div>
-        <div style="color:var(--muted);font-size:1.2rem" id="wtog${bi}">›</div>
-      </div>
-      <div class="week-body" id="wb${bi}">
-        <div class="day-tabs-row" id="dtabs${bi}">
-          ${days.map((d,di)=>`<div class="day-tab${di===0?' on':''}" onclick="showDay(${bi},${di})">${doneSessions.includes(di)?'✓ ':''} ${di===0?'Día 1':di===1?'Día 2':di===2?'Día 3':'Día 4'}</div>`).join('')}
-        </div>
-        ${days.map((d,di)=>`
-          <div class="day-content${di===0?' on':''}" id="dc${bi}_${di}">
-            ${doneSessions.includes(di)?`<div class="done-today-banner">✓ Sesión completada hoy</div>`:''}
-            <div style="font-size:.78rem;color:var(--muted);margin-bottom:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border)">
-              <strong style="color:var(--white)">${d.label}</strong><br>${d.note}
-            </div>
-            ${d.exercises.map(ex=>`
-              <div class="ex-row">
-                <div class="ex-row-tag ${ex.tag}">${TAG_LABELS[ex.tag]||ex.tag}</div>
-                <div class="ex-row-body">
-                  <div class="ex-row-name">${ex.name}</div>
-                  <div class="ex-row-detail">${ex.detail}</div>
-                  <div class="ex-row-method ${METHOD_CLASSES[ex.method]}">${METHOD_LABELS[ex.method]||ex.method}</div>
-                </div>
-              </div>
-            `).join('')}
-            <button class="go-btn" onclick="openSessFromPlan(${bi},${di})">▶ INICIAR ESTA SESIÓN</button>
-          </div>
-        `).join('')}
-      </div>
-    </div>`;
+function applyStaticI18n(){
+  document.querySelectorAll('[data-i]').forEach(el=>{
+    const key = el.getAttribute('data-i');
+    if(UI[key]) el.innerHTML = L(UI[key]);
   });
-  document.getElementById('program-weeks').innerHTML=html;
+  document.getElementById('langBtn').textContent = LANG==='ca' ? 'ES' : 'CA';
+  document.documentElement.lang = LANG;
 }
 
-function togWeek(bi){
-  const wb=document.getElementById('wb'+bi);
-  const tg=document.getElementById('wtog'+bi);
-  wb.classList.toggle('open');
-  tg.textContent=wb.classList.contains('open')?'›':'›';
-  if(wb.classList.contains('open'))tg.style.transform='rotate(90deg)';
-  else tg.style.transform='';
+function toggleLang(){
+  LANG = LANG==='ca' ? 'es' : 'ca';
+  localStorage.setItem('cf_lang', LANG);
+  applyStaticI18n();
+  rerenderAll();
 }
 
-function showDay(bi,di){
-  const block=PROGRAM[bi];const days=getPlanForDays(P.days,block);
-  days.forEach((_,i)=>{
-    document.getElementById(`dc${bi}_${i}`).classList.remove('on');
-    document.getElementById(`dtabs${bi}`).children[i].classList.remove('on');
-  });
-  document.getElementById(`dc${bi}_${di}`).classList.add('on');
-  document.getElementById(`dtabs${bi}`).children[di].classList.add('on');
+function rerenderAll(){
+  // Re-render whatever screen is active
+  if(document.getElementById('scr-onboarding').classList.contains('active')) renderOnbStep();
+  if(document.getElementById('scr-train').classList.contains('active')){ renderProfile(); renderStats(); renderWeeks(); renderLvlupAlert(); }
+  if(document.getElementById('scr-progress').classList.contains('active')){ renderCalendar(); renderProgress(); }
+  if(document.getElementById('scr-history').classList.contains('active')) renderHistory();
+  if(document.getElementById('scr-run').classList.contains('active')) renderRun();
+  if(document.getElementById('scr-gloss').classList.contains('active')) renderGloss();
+  if(document.getElementById('scr-feedback').classList.contains('active')) renderFeedback();
+  if(document.getElementById('scr-session').classList.contains('active') && curSession) renderSession();
 }
 
-// ============ SESSION ============
-function openSessFromPlan(bi,di){
-  const block=PROGRAM[bi];
-  const days=getPlanForDays(P.days,block);
-  const day=days[di];
-  curSessData={bi,di,block,day};
-  doneEx={};
-
-  const im={lumbar:'dolor lumbar',shoulder:'hombros',knee:'rodillas',wrist:'muñecas',neck:'cervicales'};
-  const injNote=P.injuries.length>0&&!P.injuries.includes('none')
-    ?`<div class="inj-alert">⚠️ Perfil con ${P.injuries.map(i=>im[i]||i).join(', ')} — revisa las adaptaciones en cada ejercicio.</div>`:'';
-
-  const methodNote={
-    PYR:'<div class="warn-box"><strong>🔺 Modo: PIRÁMIDA (7 minutos)</strong>Empieza con 1 rep, descansa 1 seg, 2 reps, descansa 2 seg… sube hasta el máximo que puedas, luego baja. Repite durante 7 minutos. Usa el <strong>nivel máximo –1</strong>.</div>',
-    SUP:'<div class="warn-box"><strong>⚡ Modo: SUPERSET</strong>Realiza los dos ejercicios uno detrás del otro sin descanso. 8–12 reps cada uno. Descansa 1 minuto entre supersets.</div>',
-    SER:'<div class="info-box"><strong>💪 Modo: SERIES DE FUERZA</strong>3 series × 5–8 reps. Usa el <strong>nivel máximo +1</strong>. Descansa 1 min entre series y 2 min entre ejercicios. Si puedes hacer más de 8–10 reps, el nivel es demasiado fácil.</div>',
-    POT:'<div class="info-box"><strong>🚀 Modo: POTENCIA</strong>Fase concéntrica (esfuerzo) lo más rápida posible. Aguanta 2 seg arriba. Baja lento. Usa el nivel máximo o máximo –1.</div>',
-    HIIT:'<div style="background:rgba(232,93,93,.08);border:1px solid rgba(232,93,93,.25);border-radius:4px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:.83rem;color:rgba(232,93,93,.9)"><strong style="display:block;margin-bottom:4px">🔥 Modo: HIIT</strong>Mínimo descanso. Sem9: máximas repeticiones posibles (mrp). Sem10: 2–4 rondas completas sin parar — anota el tiempo.</div>'
-  };
-  // Detect primary method of the day
-  const primaryMethod=day.exercises.find(e=>e.method!=='EXTRA')?.method||'SER';
-
-  const exHTML=day.exercises.map((ex,i)=>{
-    const exKey=matchEx(ex.name);
-    const e=exKey?EX[exKey]:null;
-    const lvl=exKey?getExLvl(exKey):P.level;
-    const lvData=e?e.allLevels[lvl-1]:null;
-    const req=lvData?(P.sex==='m'?lvData.rm:lvData.rf):'';
-    let injMods='';
-    if(e&&e.inj)P.injuries.forEach(inj=>{if(e.inj[inj])injMods+=`<div class="inj-warn">${e.inj[inj]}</div>`;});
-
-    return`<div class="exblock" id="eb${i}">
-      <div class="exhdr" onclick="togEx(${i})">
-        <div class="exnum" id="en${i}">${ex.method==='EXTRA'?'➕':i+1}</div>
-        <div class="exinfo">
-          <div class="exname">${ex.name}</div>
-          <div class="expresc">${ex.detail}${req?' · Tu nivel: '+req:''}</div>
-        </div>
-        ${lvData?`<div class="exlvl">Niv ${lvl}</div>`:''}
-        <div class="extog" id="et${i}">›</div>
-      </div>
-      <div class="exdetail" id="ed${i}">
-        ${e?`<div class="exmuscle">${e.muscle}</div><div class="exdesc">${e.desc}</div>`:''}
-        ${injMods}
-        ${e?`<div class="vid-outer"><iframe src="https://www.youtube.com/embed/${e.videoId}?rel=0&modestbranding=1" allowfullscreen loading="lazy" title="${e.name}"></iframe></div>
-        <a href="https://www.youtube.com/watch?v=${e.videoId}" target="_blank" class="vid-link">▶ Ver vídeo en YouTube (si no carga arriba)</a>`:''}
-        <button class="donebtn" id="db${i}" onclick="markDone(${i},'${exKey||''}')">Marcar como completado</button>
-      </div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('sesscontent').innerHTML=`
-    <button class="backbtn" onclick="showScr('sd')">← Volver</button>
-    <div style="margin-bottom:1.2rem">
-      <div class="sess-title" style="font-size:1.6rem">${block.label}</div>
-      <div class="sess-obj">${day.label}</div>
-    </div>
-    <div class="warmup">
-      <div class="wu-title">🔥 Calentamiento — 5 minutos</div>
-      <ul class="wu-list">
-        <li>20 giros de brazos (10 hacia delante, 10 hacia atrás)</li>
-        <li>25 Jumping Jacks</li>
-        <li>10 giros de cuello suaves</li>
-        <li>5 Burpees o 30 seg de escaladores</li>
-        <li>30 seg corriendo en el sitio</li>
-      </ul>
-    </div>
-    ${methodNote[primaryMethod]||''}
-    ${injNote}
-    ${exHTML}
-    <div class="info-box" style="margin-top:1.5rem"><strong>🧘 Al terminar</strong>Dedica 5 min a estirar los músculos trabajados. Mantén cada estiramiento 20–30 segundos.</div>
-    <button class="complete-sess" id="cbtn" onclick="finishSess()" disabled>FINALIZAR SESIÓN</button>
-  `;
-  showScr('ss');
-}
-
-function togEx(i){document.getElementById('ed'+i).classList.toggle('open');document.getElementById('et'+i).classList.toggle('open');}
-
-function markDone(i,exKey){
-  doneEx[i]=true;
-  document.getElementById('db'+i).textContent='✓ Completado';
-  document.getElementById('db'+i).classList.add('ok');
-  document.getElementById('eb'+i).classList.add('completed');
-  document.getElementById('en'+i).textContent='✓';
-  if(exKey)trackCompletion(exKey);
-  const total=curSessData.day.exercises.length;
-  // Enable finish after at least the non-extra exercises done
-  const nonExtra=curSessData.day.exercises.filter(e=>e.method!=='EXTRA').length;
-  const doneNonExtra=curSessData.day.exercises.filter((e,i2)=>e.method!=='EXTRA'&&doneEx[i2]).length;
-  if(doneNonExtra>=nonExtra)document.getElementById('cbtn').disabled=false;
-}
-
-function finishSess(){
-  const{bi,di,block,day}=curSessData;
-  HIST.push({date:new Date().toISOString(),blockIdx:bi,dayIdx:di,type:block.label,label:day.label,done:Object.keys(doneEx).length});
-  save();
-  const ready=getUpgradeReady();
-  const extraMsg=ready.length>0?`<br><br>🏆 <strong>${ready.length} ejercicio(s)</strong> listos para subir de nivel. ¡Compruébalo en Progreso!`:'';
-  showModal('🎉','¡SESIÓN COMPLETADA!',`${day.label} terminada. ¡Gran trabajo!${extraMsg}`,[{label:'CONTINUAR',fn:()=>{buildDash();showScr('sd');}}]);
-}
-
-// ============ CALENDAR ============
-function renderCal(){
-  const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const DAYS=['L','M','X','J','V','S','D'];
-  const trainedSet=new Set(HIST.map(h=>{const d=new Date(h.date);return`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;}));
-  const today=new Date();
-  const first=new Date(calYear,calMonth,1);
-  const last=new Date(calYear,calMonth+1,0);
-  let dow=first.getDay()-1;if(dow<0)dow=6;
-  let cells='';
-  for(let i=0;i<dow;i++)cells+=`<div class="cal-day empty"></div>`;
-  for(let d=1;d<=last.getDate();d++){
-    const k=`${calYear}-${calMonth}-${d}`;
-    const isT=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
-    cells+=`<div class="cal-day${trainedSet.has(k)?' trained':''}${isT?' today':''}">${d}</div>`;
-  }
-  document.getElementById('calwrap').innerHTML=`
-    <div class="cal-nav">
-      <button class="cal-btn" onclick="calNav(-1)">‹</button>
-      <div class="cal-month">${MONTHS[calMonth]} ${calYear}</div>
-      <button class="cal-btn" onclick="calNav(1)">›</button>
-    </div>
-    <div class="cal-header">${DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('')}</div>
-    <div class="cal-grid">${cells}</div>
-    <div class="cal-legend"><span><div class="legend-dot" style="background:rgba(217,80,26,.4);border:1px solid rgba(217,80,26,.6)"></div>Entrenaste</span><span><div class="legend-dot" style="border:1px solid var(--white)"></div>Hoy</span></div>
-  `;
-}
-function calNav(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCal();}
-
-// ============ PROGRESSION ============
-function renderProg(){
-  const keys=Object.keys(EX);
-  let html=`<div class="info-box"><strong>ℹ️ Cómo cambiar de nivel</strong>Pulsa <strong>"ESTOY AQUÍ"</strong> en el nivel donde te encuentras ahora mismo. También puedes subir cuando el sistema detecte que llevas 3 sesiones completando ese ejercicio.</div>`;
-  keys.forEach(key=>{
-    const e=EX[key];const cur=getExLvl(key);
-    const pct=Math.round(((cur-1)/4)*100);
-    const curLv=e.allLevels[cur-1]||{};
-    const dateStr=EX_LEVELS[key]?.date?`Actualizado: ${new Date(EX_LEVELS[key].date).toLocaleDateString('es')}`:'' ;
-    const isReady=EX_LEVELS[key]?.readyForUpgrade;
-    html+=`<div class="prog-section">
-      <div class="prog-hdr">
-        <div class="prog-name">${e.name}</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          ${isReady?`<span class="badge warn">🏆 Sube ya</span>`:''}
-          <span style="font-size:.74rem;color:var(--muted)">Nivel ${cur}/5</span>
-        </div>
-      </div>
-      <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
-      <div style="font-size:.73rem;color:var(--muted);margin-bottom:.9rem">${dateStr}${dateStr?' · ':''}<span style="color:var(--warn)">${curLv.weeks||''}</span> para el siguiente nivel</div>
-    `;
-    e.allLevels.forEach((lv,idx)=>{
-      const isCur=lv.n===cur;
-      const isDone=lv.n<cur;
-      const isLocked=lv.n>cur;
-      html+=`<div class="lvl-card${isCur?' cur':isDone?' done':isLocked?' locked':''}">
-        <div class="lvl-n">${isDone?'✓':isCur?'▶':lv.n}</div>
-        <div class="lvl-info">
-          <div class="lvl-name">${lv.name}</div>
-          <div class="lvl-req">${P.sex==='m'?lv.rm:lv.rf}</div>
-        </div>
-        <div class="lvl-right">
-          <div class="lvl-time">${lv.weeks}</div>
-          <button class="btn-here${isCur?' is-cur':''}"
-            onclick="${isCur?'':(`confirmLvlChange('${key}',${lv.n})`)}"
-            ${isCur?'disabled':''}>
-            ${isCur?'✓ Nivel actual':'ESTOY AQUÍ'}
-          </button>
-        </div>
-      </div>`;
-    });
-    html+=`</div>`;
-  });
-  document.getElementById('progwrap').innerHTML=html;
-}
-
-// ============ HISTORY ============
-function renderHist(){
-  const el=document.getElementById('histlist');
-  if(!HIST.length){el.innerHTML='<div class="empty"><p style="font-size:2rem;opacity:.3">📋</p><p style="margin-top:1rem">Aún sin sesiones completadas.<br>¡Empieza hoy!</p></div>';return;}
-  el.innerHTML=[...HIST].reverse().map(h=>{
-    const d=new Date(h.date);
-    return`<div class="hentry">
-      <div class="hdate">${d.getDate()}<small>${d.toLocaleString('es',{month:'short'}).toUpperCase()}</small></div>
-      <div class="hinfo"><div class="htit">${h.type}</div><div class="hmeta">${h.label} · ${d.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</div></div>
-      <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--muted)">${h.done}🔥</div>
-    </div>`;
-  }).join('');
-}
-
-// ============ RUNNING ============
-function renderRun(){
-  const knee=P.injuries.includes('knee');
-  const warn=knee?`<div style="background:rgba(232,93,93,.07);border-left:3px solid var(--danger);padding:.75rem 1rem;margin-bottom:1.5rem;font-size:.82rem;color:rgba(232,93,93,.85);border-radius:0 4px 4px 0">⚠️ Tienes indicado problemas de rodilla. Consulta a tu médico antes de empezar. Comienza siempre con marcha rápida.</div>`:'';
-  const weeks=[
-    {w:1,t:'Iniciación',sub:'3 ses · ~20 min',days:[{l:'Calentamiento',d:'5 min caminando rápido'},{l:'Intervalos',d:'1 min corriendo + 2 min caminando × 5 rondas'},{l:'Enfriamiento',d:'5 min caminando'},{l:'Total',d:'~20 min'}],tip:'No importa la velocidad. Importa terminar.'},
-    {w:2,t:'Ampliando intervalos',sub:'3 ses · ~22 min',days:[{l:'Calentamiento',d:'5 min caminando'},{l:'Intervalos',d:'1.5 min corriendo + 2 min caminando × 5 rondas'},{l:'Enfriamiento',d:'5 min caminando'},{l:'Total',d:'~22 min'}],tip:'La constancia vale más que la velocidad.'},
-    {w:3,t:'Bloques de 2 minutos',sub:'3 ses · ~25 min',days:[{l:'Calentamiento',d:'5 min caminando'},{l:'Intervalos',d:'2 min corriendo + 2 min caminando × 5 rondas'},{l:'Enfriamiento',d:'5 min caminando'},{l:'Total',d:'~25 min'}],tip:'Deberías poder hablar frases cortas mientras corres.'},
-    {w:4,t:'Ritmo 3:2',sub:'3 ses · ~28 min',days:[{l:'Calentamiento',d:'5 min caminando'},{l:'Intervalos',d:'3 min corriendo + 2 min caminando × 4 rondas'},{l:'Enfriamiento',d:'5 min caminando'},{l:'Total',d:'~28 min'}],tip:'Si notas dolor articular (no muscular), repite la semana anterior.'},
-    {w:5,t:'Bloques de 5 minutos',sub:'3 ses · ~30 min',days:[{l:'Calentamiento',d:'5 min caminando'},{l:'Intervalos',d:'5 min corriendo + 2 min caminando × 3 rondas'},{l:'Enfriamiento',d:'5 min caminando'},{l:'Total',d:'~30 min'}],tip:'5 minutos seguidos corriendo. Gran progreso.'},
-    {w:6,t:'Bloques de 8 minutos',sub:'3 ses · ~30 min',days:[{l:'Calentamiento',d:'5 min caminando'},{l:'Bloque 1',d:'8 min corriendo'},{l:'Descanso',d:'2 min caminando'},{l:'Bloque 2',d:'8 min corriendo'},{l:'Enfriamiento',d:'5 min caminando'},{l:'Total',d:'~28 min'}],tip:'Casi la mitad del tiempo ya es carrera continua.'},
-    {w:7,t:'Hacia los 20 minutos',sub:'3 ses · ~30 min',days:[{l:'Calentamiento',d:'5 min caminando'},{l:'Carrera',d:'20 min continuos (inserta 2 min caminando si lo necesitas)'},{l:'Enfriamiento',d:'5 min caminando'},{l:'Total',d:'~30 min'}],tip:'20 minutos continuos es un hito. ¡Celébralo!'},
-    {w:8,t:'30 minutos continuos 🎉',sub:'Meta final',days:[{l:'Calentamiento',d:'5 min caminando'},{l:'Carrera',d:'25–30 min continuos'},{l:'Enfriamiento',d:'5 min caminando'},{l:'Total',d:'~35–40 min'}],tip:'¡Lo has conseguido! Siguiente meta: 5 km.'}
-  ];
-  document.getElementById('runcontent').innerHTML=warn+`
-    <div class="rtip"><strong>🏃 Metodología: Correr + Caminar</strong>Alterna intervalos de carrera con caminata. Objetivo: 30 minutos continuos en 8 semanas.</div>
-    ${weeks.map((w,i)=>`
-      <div class="rweek">
-        <div class="rwhdr" onclick="togRW(${i})">
-          <div class="rwnum">SEM ${w.w}</div>
-          <div style="flex:1"><div style="font-weight:600;font-size:.9rem">${w.t}</div><div style="font-size:.78rem;color:var(--muted);margin-top:2px">${w.sub}</div></div>
-          <div style="color:var(--muted)">›</div>
-        </div>
-        <div class="rwbody" id="rw${i}">
-          <div style="padding:.75rem 0 .5rem;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Estructura</div>
-          ${w.days.map(d=>`<div class="rday"><span class="rdlbl">${d.l}</span><span>${d.d}</span></div>`).join('')}
-          <div style="padding:.7rem 0 .2rem;font-size:.81rem;color:var(--muted);border-top:1px solid var(--border);margin-top:.5rem">💡 ${w.tip}</div>
-        </div>
-      </div>
-    `).join('')}
-    <div class="rtip" style="margin-top:1.5rem"><strong>📌 Siempre</strong>Calienta 5 min caminando antes. Estira gemelos, cuádriceps e isquiotibiales al terminar.</div>
-  `;
-}
-function togRW(i){document.getElementById('rw'+i).classList.toggle('open');}
-
-// ============ TABS ============
-function showTab(tab,btn){
-  ['entrenar','progreso','historial','correr','feedback'].forEach(t=>{const e=document.getElementById('t-'+t);if(e)e.style.display='none';});
-  document.getElementById('t-'+tab).style.display='block';
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
-  if(btn)btn.classList.add('on');
-  if(tab==='historial')renderHist();
-  if(tab==='correr')renderRun();
-  if(tab==='progreso'){renderCal();renderProg();}
-}
-
-// ============ FEEDBACK ============
-const STAR_VALS={uso:0,general:0};
-function setStar(field,val){
-  STAR_VALS[field]=val;
-  document.getElementById('val-'+field).value=val;
-  const row=document.getElementById('stars-'+field);
-  row.querySelectorAll('.star-btn').forEach(b=>{
-    b.classList.toggle('lit',parseInt(b.dataset.val)<=val);
-  });
-}
-
-async function submitFeedback(e){
-  e.preventDefault();
-  const btn=document.getElementById('fb-submit-btn');
-  const errEl=document.getElementById('fb-error');
-  errEl.style.display='none';
-  // Validate stars
-  if(!STAR_VALS.uso||!STAR_VALS.general){
-    errEl.textContent='Por favor valora las preguntas con estrellas (2 y 4).';
-    errEl.style.display='block';
-    return;
-  }
-  btn.textContent='ENVIANDO...';btn.disabled=true;
-  const form=document.getElementById('feedback-form');
-  const data=new FormData(form);
-  // Add profile context
-  const lm={1:'Principiante',2:'Intermedio',3:'Avanzado',4:'Atleta'};
-  data.append('perfil_nivel_app',lm[P.level]||P.level);
-  data.append('dias_semana',P.days);
-  data.append('sesiones_completadas',HIST.length);
-  try{
-    const res=await fetch('https://formspree.io/f/mwvzgjwk',{
-      method:'POST',body:data,headers:{Accept:'application/json'}
-    });
-    if(res.ok){
-      document.getElementById('feedback-form').style.display='none';
-      document.getElementById('feedback-thanks').style.display='block';
-    } else {
-      throw new Error('Error en el envío');
-    }
-  } catch(err){
-    errEl.textContent='No se pudo enviar. Comprueba tu conexión e inténtalo de nuevo.';
-    errEl.style.display='block';
-    btn.textContent='ENVIAR FEEDBACK';btn.disabled=false;
-  }
-}
-
-// ============ BOTTOM NAV ============
-function setBottomNav(tab){
-  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));
-  const btn=document.getElementById('bn-'+tab);
-  if(btn)btn.classList.add('on');
-  // also sync top tabs
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(b=>{
-    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+tab+"'"))b.classList.add('on');
-  });
-}
-
-// ============ SCREENS ============
-function showScr(id){
+// ============ NAVIGATION ============
+function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
-  // show bottom nav only on dashboard
-  const bnav=document.getElementById('bottom-nav');
-  if(bnav)bnav.style.display=id==='sd'?'block':'none';
+}
+function switchTab(tab){
+  showScreen('scr-'+tab);
+  document.querySelectorAll('.tabitem').forEach(el=>el.classList.toggle('on', el.dataset.tab===tab));
+  if(tab==='train'){ renderProfile(); renderStats(); renderWeeks(); renderLvlupAlert(); }
+  if(tab==='progress'){ renderCalendar(); renderProgress(); }
+  if(tab==='history') renderHistory();
+  if(tab==='run') renderRun();
+  if(tab==='gloss') renderGloss();
+  if(tab==='feedback') renderFeedback();
 }
 
-// ============ MODAL ============
-function showModal(ico,tit,txt,btns){
-  const m=document.getElementById('modal');
-  const bHTML=btns.map((b,i)=>`<button class="${b.style||'btn'}" onclick="modalAct(${i})">${b.label}</button>`).join('');
-  document.getElementById('mbox').innerHTML=`<div class="mico">${ico}</div><div class="mtit">${tit}</div><div class="mtxt">${txt}</div><div class="mbtns">${bHTML}</div>`;
-  m.classList.add('show');m._btns=btns;
+// ============ ONBOARDING ============
+function startOnboarding(){
+  onbStep = 0;
+  onbData = {level:null, days:4, build:null, injuries:[], name:''};
+  showScreen('scr-onboarding');
+  renderOnbStep();
 }
-function modalAct(i){const m=document.getElementById('modal');m.classList.remove('show');const fn=m._btns&&m._btns[i]&&m._btns[i].fn;m._btns=null;if(fn)fn();}
-function closeModal(){const m=document.getElementById('modal');m.classList.remove('show');m._btns=null;}
+const ONB_STEPS = 5;
+function renderOnbStep(){
+  // dots
+  let dots='';
+  for(let i=0;i<ONB_STEPS;i++) dots += `<div class="ndot ${i===onbStep?'on':''}"></div>`;
+  document.getElementById('navDots').innerHTML = dots;
+  const box = document.getElementById('onbStep');
+  if(onbStep===0){
+    box.innerHTML = `<div class="q-title">${t('q1_title')}</div><div class="q-sub">${t('q1_sub')}</div>`+
+      [1,2,3,4].map(n=>`<button class="opt ${onbData.level===n?'sel':''}" onclick="setLevel(${n})"><span class="opt-t">${t('q1_o'+n+'t')}</span><span class="opt-d">${t('q1_o'+n+'d')}</span></button>`).join('');
+  } else if(onbStep===1){
+    box.innerHTML = `<div class="q-title">${t('q2_title')}</div><div class="q-sub">${t('q2_sub')}</div>`+
+      `<div class="dayrow">`+[3,4].map(n=>`<div class="daypill ${onbData.days===n?'sel':''}" onclick="setDays(${n})">${n} ${LANG==='ca'?'dies':'días'}</div>`).join('')+`</div>`;
+  } else if(onbStep===2){
+    box.innerHTML = `<div class="q-title">${t('q3_title')}</div><div class="q-sub">${t('q3_sub')}</div>`+
+      ['m','f'].map((b,i)=>`<button class="opt ${onbData.build===b?'sel':''}" onclick="setBuild('${b}')"><span class="opt-t">${t('q3_o'+(i+1)+'t')}</span><span class="opt-d">${t('q3_o'+(i+1)+'d')}</span></button>`).join('');
+  } else if(onbStep===3){
+    const injs=['none','lumbar','shoulder','knee','wrist','neck'];
+    box.innerHTML = `<div class="q-title">${t('q4_title')}</div><div class="q-sub">${t('q4_sub')}</div>`+
+      injs.map(k=>`<button class="opt ${onbData.injuries.includes(k)?'sel':''}" onclick="toggleInj('${k}')"><span class="opt-t">${t('inj_'+k)}</span></button>`).join('');
+  } else if(onbStep===4){
+    box.innerHTML = `<div class="q-title">${t('q5_title')}</div><div class="q-sub">${t('q5_sub')}</div>`+
+      `<input class="inp" id="nameInp" placeholder="${t('q5_ph')}" value="${onbData.name||''}" oninput="onbData.name=this.value">`;
+  }
+  document.getElementById('prevBtn').style.display = onbStep>0 ? 'block' : 'none';
+  document.getElementById('nextBtn').textContent = onbStep===ONB_STEPS-1 ? t('btn_finish') : t('btn_next');
+}
+function setLevel(n){ onbData.level=n; renderOnbStep(); }
+function setDays(n){ onbData.days=n; renderOnbStep(); }
+function setBuild(b){ onbData.build=b; renderOnbStep(); }
+function toggleInj(k){
+  if(k==='none'){ onbData.injuries=['none']; }
+  else { onbData.injuries=onbData.injuries.filter(x=>x!=='none'); 
+    if(onbData.injuries.includes(k)) onbData.injuries=onbData.injuries.filter(x=>x!==k);
+    else onbData.injuries.push(k); }
+  renderOnbStep();
+}
+function nextStep(){
+  if(onbStep===0 && !onbData.level){ showToast(LANG==='ca'?'Tria un nivell':'Elige un nivel'); return; }
+  if(onbStep===2 && !onbData.build){ showToast(LANG==='ca'?'Tria una opció':'Elige una opción'); return; }
+  if(onbStep < ONB_STEPS-1){ onbStep++; renderOnbStep(); }
+  else finishOnboarding();
+}
+function prevStep(){ if(onbStep>0){ onbStep--; renderOnbStep(); } }
+function finishOnboarding(){
+  profile = {level:onbData.level, days:onbData.days, build:onbData.build, injuries:onbData.injuries, name:onbData.name||(LANG==='ca'?'Atleta':'Atleta')};
+  // set initial exercise levels based on chosen level
+  const baseLvl = Math.min(onbData.level, 4);
+  EX_ORDER.forEach(k=>{ if(!exLevels[k]||exLevels[k]<1) exLevels[k]=baseLvl; });
+  saveAll();
+  document.getElementById('tabbar').style.display='flex';
+  switchTab('train');
+}
 
-// ============ TOAST ============
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+// ============ TRAIN: profile, stats, weeks ============
+function renderProfile(){
+  if(!profile) return;
+  const initial = (profile.name||'A').charAt(0).toUpperCase();
+  const lvlNames={1:t('q1_o1t'),2:t('q1_o2t'),3:t('q1_o3t'),4:t('q1_o4t')};
+  document.getElementById('profileCard').innerHTML = 
+    `<div class="avatar">${initial}</div>
+     <div class="profile-info" style="flex:1">
+       <h3>${profile.name}</h3>
+       <p>${t('prof_level')}: ${lvlNames[profile.level]} · ${profile.days} ${t('prof_days')}</p>
+     </div>
+     <button class="editlink" onclick="editProfile()">${t('edit')}</button>`;
+}
+function renderStats(){
+  const now=new Date();
+  const weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay());
+  const thisWeek=history.filter(h=>new Date(h.date)>=weekStart).length;
+  document.getElementById('statGrid').innerHTML=
+    `<div class="stat"><div class="n">${history.length}</div><div class="l">${t('stat_sessions')}</div></div>
+     <div class="stat"><div class="n">${thisWeek}</div><div class="l">${t('stat_week')}</div></div>
+     <div class="stat"><div class="n">${calcStreak()}</div><div class="l">${t('stat_streak')}</div></div>`;
+}
+function calcStreak(){
+  if(history.length===0) return 0;
+  const days=[...new Set(history.map(h=>h.date.slice(0,10)))].sort().reverse();
+  let streak=0; let cur=new Date(); cur.setHours(0,0,0,0);
+  for(let i=0;i<days.length;i++){
+    const d=new Date(days[i]); d.setHours(0,0,0,0);
+    const diff=Math.round((cur-d)/86400000);
+    if(diff<=1){ streak++; cur=d; } else break;
+  }
+  return streak;
+}
+function renderWeeks(){
+  const html = WEEKS.map((w,wi)=>{
+    const days = w.days.slice(0, profile.days);
+    return `<div class="week" id="week${wi}">
+      <div class="week-h" onclick="toggleWeek(${wi})">
+        <div class="week-badge">${LANG==='ca'?'SET':'SEM'} ${w.badge}</div>
+        <div class="week-tt">${L(w.title)}<small>${L(w.sub)}</small></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="week-body">
+        <div class="daytab-row">${days.map((d,di)=>`<div class="daytab ${di===0?'on':''}" onclick="showWeekDay(${wi},${di})">${t('day')} ${di+1}</div>`).join('')}</div>
+        <div id="wkday${wi}"></div>
+      </div></div>`;
+  }).join('');
+  document.getElementById('weekList').innerHTML = html;
+  WEEKS.forEach((w,wi)=>renderWeekDay(wi,0));
+}
+function toggleWeek(wi){ document.getElementById('week'+wi).classList.toggle('open'); }
+function showWeekDay(wi,di){
+  document.querySelectorAll(`#week${wi} .daytab`).forEach((el,i)=>el.classList.toggle('on',i===di));
+  renderWeekDay(wi,di);
+}
+function renderWeekDay(wi,di){
+  const w=WEEKS[wi], d=w.days[di];
+  const exHtml=d.ex.map(e=>`<div class="exitem">
+    <span class="extag tag-${e.tag}">${L(UI.tags[e.tag])}</span>
+    <div class="exitem-b"><div class="exitem-n">${L(e.n)}</div>${L(e.d)?`<div class="exitem-d">${L(e.d)}</div>`:''}</div>
+  </div>`).join('');
+  document.getElementById('wkday'+wi).innerHTML=
+    `<div class="dayinfo"><b>${L(d.label)}</b>${L(d.note)}</div>${exHtml}
+     <button class="startbtn" onclick="openSession(${wi},${di})">${t('start_session')}</button>`;
+}
 
-// ============ STORAGE ============
-function save(){
-  try{
-    localStorage.setItem('cf_p',JSON.stringify(P));
-    localStorage.setItem('cf_h',JSON.stringify(HIST));
-    localStorage.setItem('cf_el',JSON.stringify(EX_LEVELS));
-    localStorage.setItem('cf_ec',JSON.stringify(EX_COMPLETIONS));
-  }catch(e){}
+// ============ SESSION ============
+function openSession(wi,di){
+  curSession={wi,di};
+  curSessionDone={};
+  showScreen('scr-session');
+  renderSession();
 }
-function tryLoad(){
-  try{
-    const p=localStorage.getItem('cf_p');
-    if(p){
-      P=JSON.parse(p);
-      HIST=JSON.parse(localStorage.getItem('cf_h')||'[]');
-      EX_LEVELS=JSON.parse(localStorage.getItem('cf_el')||'{}');
-      EX_COMPLETIONS=JSON.parse(localStorage.getItem('cf_ec')||'{}');
-      buildDash();showScr('sd');
-    }else alert('No hay perfil guardado. Crea uno nuevo.');
-  }catch(e){alert('Error al cargar.');}
+function closeSession(){ switchTab('train'); }
+function renderSession(){
+  const w=WEEKS[curSession.wi], d=w.days[curSession.di];
+  let injWarns='';
+  const injMap={lumbar:'inj_warn_lumbar',shoulder:'inj_warn_shoulder',knee:'inj_warn_knee',wrist:'inj_warn_wrist',neck:'inj_warn_neck'};
+  (profile.injuries||[]).forEach(k=>{ if(injMap[k]) injWarns+=`<div class="warn-inj">${t(injMap[k])}</div>`; });
+  const exHtml=d.ex.map((e,ei)=>{
+    const done=curSessionDone[ei];
+    const matched=matchExercise(e.n.es||e.n.ca||'');
+    let detail='';
+    if(matched){
+      const lvl=exLevels[matched]||1;
+      const exObj=EX[matched];
+      const lvlObj=exObj.levels[lvl-1];
+      const reps=lvlObj.r[profile.build]||lvlObj.r.m;
+      detail=`<div class="lvlbadge">${t('level')} ${lvl}: ${L(lvlObj.t)} · ${reps} reps</div>
+        <div class="muscle">${L(exObj.muscle)}</div>
+        <div class="desc">${L(exObj.desc)}</div>
+        <div class="vidwrap"><iframe src="https://www.youtube.com/embed/${exObj.vid}" allowfullscreen loading="lazy"></iframe></div>
+        <a class="btn ghost full" href="https://www.youtube.com/watch?v=${exObj.vid}" target="_blank" style="font-size:.8rem;padding:.5rem">${t('watch_video')}</a>`;
+    }
+    return `<div class="exbig ${done?'done':''}" id="exbig${ei}">
+      <div class="exbig-h" onclick="toggleExbig(${ei})">
+        <div class="exbig-num">${done?'✓':ei+1}</div>
+        <div class="exbig-t"><div class="nm">${L(e.n)}</div>${L(e.d)?`<div class="ds">${L(e.d)}</div>`:''}</div>
+        <div class="chev">›</div>
+      </div>
+      <div class="exbig-body">
+        ${detail}
+        <button class="donebtn ${done?'done':''}" onclick="toggleDone(${ei})">${done?t('done'):t('mark_done')}</button>
+      </div></div>`;
+  }).join('');
+  const allDone=d.ex.every((e,ei)=>curSessionDone[ei]);
+  document.getElementById('sessionBody').innerHTML=
+    `<div class="sess-head"><h2>${L(w.title)} · ${t('day')} ${curSession.di+1}</h2><p>${L(d.label)}</p></div>
+     <div class="method-box"><b>${t('warmup_title')}</b>${t('warmup_txt')}</div>
+     ${injWarns}
+     <div class="method-box"><b>${L(w.sub)}</b>${L(d.note)}</div>
+     ${exHtml}
+     <button class="finishbtn" id="finishBtn" ${allDone?'':'disabled'} onclick="finishSession()">${t('finish_session')}</button>`;
 }
-function resetP(){
-  if(confirm('¿Editar perfil? Las preferencias se resetearán (historial y niveles se conservan).')){{P={level:1,days:4,sex:'m',injuries:[],name:''};curS=1;goOnb();}}}
+function toggleExbig(ei){ document.getElementById('exbig'+ei).classList.toggle('open'); }
+function toggleDone(ei){
+  curSessionDone[ei]=!curSessionDone[ei];
+  renderSession();
+  document.getElementById('exbig'+ei).classList.add('open');
+}
+function finishSession(){
+  const w=WEEKS[curSession.wi];
+  history.push({date:new Date().toISOString(), week:curSession.wi, day:curSession.di, title:L(w.title)});
+  sessionCount++;
+  saveAll();
+  // level-up suggestion every 3 sessions
+  const showLvlup = sessionCount % 3 === 0;
+  showModal('🎉', t('session_done'), t('session_done_txt'), [
+    {label:t('continue'), action:()=>{ closeModal(); switchTab('train'); if(showLvlup) setTimeout(()=>renderLvlupAlert(true),300); }}
+  ]);
+}
+
+// ============ EXERCISE MATCHING (for levels) ============
+function matchExercise(name){
+  const n=name.toLowerCase();
+  if(n.includes('flexión vertical')||n.includes('flexions verticals')||n.includes('flexiones verticales')||n.includes('pica')||n.includes('pike')) return 'flexion_vertical';
+  if(n.includes('flex')) return 'flexion';
+  if(n.includes('dominad')) return 'dominada';
+  if(n.includes('sentadill')) return 'sentadilla';
+  if(n.includes('abdominal')) return 'abdominal';
+  return null;
+}
+
+// ============ LEVEL-UP ALERT ============
+function renderLvlupAlert(force){
+  const el=document.getElementById('lvlupAlert');
+  if(!force && sessionCount>0 && sessionCount%3!==0){ el.innerHTML=''; return; }
+  if(sessionCount===0){ el.innerHTML=''; return; }
+  el.innerHTML=`<div class="intro-box" style="border-color:rgba(217,80,26,.4);background:rgba(217,80,26,.1);color:var(--acc2);cursor:pointer" onclick="switchTab('progress')">
+    <b>${t('lvlup_title')}</b><br>${t('lvlup_txt')}</div>`;
+}
+
+// ============ PROGRESS: calendar + levels ============
+function renderCalendar(){
+  const y=calDate.getFullYear(), m=calDate.getMonth();
+  const first=new Date(y,m,1); let startDow=(first.getDay()+6)%7;
+  const days=new Date(y,m+1,0).getDate();
+  const trained=new Set(history.map(h=>h.date.slice(0,10)));
+  const today=new Date().toISOString().slice(0,10);
+  let cells='';
+  L(UI.dows).forEach(dw=>cells+=`<div class="caldow">${dw}</div>`);
+  for(let i=0;i<startDow;i++) cells+=`<div class="calcell empty"></div>`;
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls='calcell'; if(trained.has(ds))cls+=' has'; if(ds===today)cls+=' today';
+    cells+=`<div class="${cls}">${d}</div>`;
+  }
+  document.getElementById('calCard').innerHTML=
+    `<div class="calhead"><button onclick="calNav(-1)">‹</button><h3>${L(UI.months)[m]} ${y}</h3><button onclick="calNav(1)">›</button></div>
+     <div class="calgrid">${cells}</div>`;
+}
+function calNav(d){ calDate.setMonth(calDate.getMonth()+d); renderCalendar(); }
+function renderProgress(){
+  const html=EX_ORDER.map(k=>{
+    const ex=EX[k], cur=exLevels[k]||1;
+    const segs=[1,2,3,4,5].map(i=>`<div class="lvlseg ${i<=cur?'on':''}"></div>`).join('');
+    const rows=ex.levels.map((lv,i)=>{
+      const n=i+1; const reps=lv.r[profile?profile.build:'m']||lv.r.m;
+      return `<div class="lvlrow ${n===cur?'cur':''}">
+        <div class="lvlrow-n">${n}</div>
+        <div class="lvlrow-i"><div class="t">${L(lv.t)}</div><div class="r">${reps} reps</div></div>
+        ${n===cur?`<span style="color:var(--acc);font-size:.72rem;font-weight:600">${t('current')}</span>`:`<button class="herebtn ${n<cur?'ghost':''}" onclick="setExLevel('${k}',${n})">${t('here')}</button>`}
+      </div>`;
+    }).join('');
+    return `<div class="prog-ex">
+      <div class="prog-ex-h"><div class="nm">${L(ex.name)}</div><div class="lv">${t('level')} ${cur}/5</div></div>
+      <div class="lvlbar">${segs}</div>${rows}</div>`;
+  }).join('');
+  document.getElementById('progList').innerHTML=html;
+}
+function setExLevel(k,n){
+  exLevels[k]=n; saveAll(); renderProgress();
+  showToast((LANG==='ca'?'Nivell actualitzat: ':'Nivel actualizado: ')+L(EX[k].name)+' → '+n);
+}
+
+// ============ HISTORY ============
+function renderHistory(){
+  if(history.length===0){ document.getElementById('histList').innerHTML=`<div class="empty">${t('no_history')}</div>`; return; }
+  const mns=L(UI.months);
+  const html=[...history].reverse().map(h=>{
+    const d=new Date(h.date);
+    return `<div class="histitem">
+      <div class="dt"><div class="d">${d.getDate()}</div><div class="m">${mns[d.getMonth()].slice(0,3)}</div></div>
+      <div class="info"><div class="t">${h.title}</div><div class="s">${t('day')} ${h.day+1} · ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}</div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('histList').innerHTML=html;
+}
+
+// ============ RUN ============
+const RUN_WEEKS=[
+ {run:'1 min',walk:'2 min',reps:'8',total:'~24 min'},
+ {run:'2 min',walk:'2 min',reps:'6',total:'~24 min'},
+ {run:'3 min',walk:'2 min',reps:'5',total:'~25 min'},
+ {run:'5 min',walk:'2 min',reps:'4',total:'~28 min'},
+ {run:'8 min',walk:'2 min',reps:'3',total:'~30 min'},
+ {run:'12 min',walk:'2 min',reps:'2',total:'~28 min'},
+ {run:'20 min',walk:'2 min',reps:'1+',total:'~25 min'},
+ {run:'30 min',walk:'—',reps:'1',total:'30 min'},
+];
+function renderRun(){
+  document.getElementById('runIntro').textContent=t('run_intro');
+  const kneeWarn=(profile&&profile.injuries&&profile.injuries.includes('knee'))?`<div class="warn-inj">${t('run_knee_warn')}</div>`:'';
+  const runT=LANG==='ca'?'Córrer':'Correr', walkT=LANG==='ca'?'Caminar':'Caminar', repsT=LANG==='ca'?'Repeticions':'Repeticiones', totalT=LANG==='ca'?'Durada':'Duración';
+  const html=kneeWarn+RUN_WEEKS.map((r,i)=>`<div class="runweek" id="runweek${i}">
+    <div class="runweek-h" onclick="toggleRunWeek(${i})">
+      <div class="runweek-badge">${t('run_week')} ${i+1}</div>
+      <div class="runweek-t">${runT} ${r.run} / ${walkT} ${r.walk}<small>${r.reps}× · ${r.total}</small></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="runweek-body">
+      <div class="row"><span class="k">${runT}</span><span>${r.run}</span></div>
+      <div class="row"><span class="k">${walkT}</span><span>${r.walk}</span></div>
+      <div class="row"><span class="k">${repsT}</span><span>${r.reps}</span></div>
+      <div class="row"><span class="k">${totalT}</span><span>${r.total}</span></div>
+    </div></div>`).join('');
+  document.getElementById('runList').innerHTML=html;
+}
+function toggleRunWeek(i){ document.getElementById('runweek'+i).classList.toggle('open'); }
+
+// ============ GLOSSARY ============
+function renderGloss(){
+  document.getElementById('glossList').innerHTML=GLOSS.map(g=>
+    `<div class="glossitem"><div class="term">${L(g.t)}</div><div class="def">${L(g.d)}</div></div>`).join('');
+}
+
+// ============ FEEDBACK ============
+let fbStars={q2:0,q4:0};
+function renderFeedback(){
+  const lvlNames={1:t('q1_o1t'),2:t('q1_o2t'),3:t('q1_o3t'),4:t('q1_o4t')};
+  document.getElementById('fbBody').innerHTML=
+    `<div class="intro-box">${t('fb_intro')}</div>
+     <form id="fbForm" onsubmit="return submitFeedback(event)">
+       <div class="fbq"><label class="qlbl">${t('fb_q1')}</label><div class="fbopts">
+         ${[1,2,3,4].map(n=>`<label class="fbopt"><input type="radio" name="fq1" value="${lvlNames[n]}" required> ${lvlNames[n]}</label>`).join('')}
+       </div></div>
+       <div class="fbq"><label class="qlbl">${t('fb_q2')}</label><div class="stars" id="stars-q2">${[1,2,3,4,5].map(s=>`<span class="star" onclick="setFbStar('q2',${s})">★</span>`).join('')}</div></div>
+       <div class="fbq"><label class="qlbl">${t('fb_q3')}</label><div class="fbopts">
+         ${['fb_q3_o1','fb_q3_o2','fb_q3_o3'].map(o=>`<label class="fbopt"><input type="radio" name="fq3" value="${t(o)}" required> ${t(o)}</label>`).join('')}
+       </div></div>
+       <div class="fbq"><label class="qlbl">${t('fb_q4')}</label><div class="stars" id="stars-q4">${[1,2,3,4,5].map(s=>`<span class="star" onclick="setFbStar('q4',${s})">★</span>`).join('')}</div></div>
+       <div class="fbq"><label class="qlbl">${t('fb_q5')}</label><textarea class="fbtext" name="fq5" placeholder="${t('fb_ph5')}"></textarea></div>
+       <div class="fbq"><label class="qlbl">${t('fb_q6')}</label><textarea class="fbtext" name="fq6" placeholder="${t('fb_ph6')}"></textarea></div>
+       <button type="submit" class="btn full" id="fbSubmit">${t('fb_send')}</button>
+     </form>`;
+  fbStars={q2:0,q4:0};
+}
+function setFbStar(q,n){
+  fbStars[q]=n;
+  document.querySelectorAll(`#stars-${q} .star`).forEach((s,i)=>s.classList.toggle('on',i<n));
+}
+function submitFeedback(e){
+  e.preventDefault();
+  const f=e.target;
+  const btn=document.getElementById('fbSubmit');
+  btn.textContent=t('fb_sending'); btn.disabled=true;
+  const data={
+    nivel:f.fq1.value, facilidad:fbStars.q2, niveles_util:f.fq3.value,
+    valoracion:fbStars.q4, mejor:f.fq5.value, mejoraria:f.fq6.value,
+    idioma:LANG, sesiones:history.length
+  };
+  fetch('https://formspree.io/f/mwvzgjwk',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(data)})
+    .then(()=>{ document.getElementById('fbBody').innerHTML=`<div class="empty">✅ ${t('fb_thanks')}</div>`; })
+    .catch(()=>{ document.getElementById('fbBody').innerHTML=`<div class="empty">✅ ${t('fb_thanks')}</div>`; });
+  return false;
+}
+
+// ============ PROFILE EDIT ============
+function editProfile(){
+  showModal('⚙️','', t('reset_confirm'), [
+    {label:t('cancel'), action:closeModal, ghost:true},
+    {label:t('confirm'), action:()=>{ closeModal(); document.getElementById('tabbar').style.display='none'; startOnboarding(); }}
+  ]);
+}
+function loadSaved(){
+  if(profile){ document.getElementById('tabbar').style.display='flex'; switchTab('train'); }
+}
+
+// ============ MODAL / TOAST ============
+function showModal(ic,title,txt,btns){
+  document.getElementById('modalBox').innerHTML=
+    `${ic?`<div class="ic">${ic}</div>`:''}${title?`<h3>${title}</h3>`:''}<p>${txt}</p>
+     <div class="modal-btns">${btns.map((b,i)=>`<button class="btn ${b.ghost?'ghost':''} full" onclick="window._modalAct(${i})">${b.label}</button>`).join('')}</div>`;
+  window._modalAct=(i)=>btns[i].action();
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+let toastTimer;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ============ PERSISTENCE ============
+function saveAll(){
+  localStorage.setItem('cf_profile',JSON.stringify(profile));
+  localStorage.setItem('cf_history',JSON.stringify(history));
+  localStorage.setItem('cf_levels',JSON.stringify(exLevels));
+  localStorage.setItem('cf_sescount',String(sessionCount));
+}
+
+// ============ INIT ============
+function init(){
+  applyStaticI18n();
+  if(profile){
+    document.getElementById('loadBtn').style.display='inline-block';
+  }
+}
+init();
 </script>
 </body>
 </html>
