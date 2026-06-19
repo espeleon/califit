@@ -2,8 +2,18 @@
 <html lang="ca">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>CaliFit</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- iOS / Safari -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CaliFit">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--border:#2a2a2a;--acc:#d9501a;--acc2:#f2784b;--white:#f5f2ed;--muted:#8a8a8a;--ok:#4caf7d;--warn:#e8a427;--danger:#e85d5d}
@@ -89,6 +99,26 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;li
 .sess-head p{color:var(--muted);font-size:.85rem}
 .method-box{background:rgba(232,164,39,.1);border:1px solid rgba(232,164,39,.3);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem}
 .method-box b{color:var(--warn);display:block;margin-bottom:.25rem}
+.timer-fab{position:fixed;right:1rem;bottom:5rem;z-index:60;width:54px;height:54px;border-radius:50%;background:var(--acc);border:none;color:#fff;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);display:none;align-items:center;justify-content:center}
+.timer-fab.show{display:flex}
+.timer-panel{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--bg2);border-top:1px solid var(--border);border-radius:18px 18px 0 0;padding:1.1rem 1.1rem 1.4rem;transform:translateY(110%);transition:transform .25s;box-shadow:0 -8px 30px rgba(0,0,0,.5)}
+.timer-panel.show{transform:translateY(0)}
+.timer-panel .grab{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto .9rem}
+.tm-modes{display:flex;gap:.4rem;margin-bottom:1rem}
+.tm-mode{flex:1;text-align:center;padding:.5rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--muted)}
+.tm-mode.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.tm-display{font-family:'Bebas Neue',cursive;font-size:4.5rem;text-align:center;line-height:1;letter-spacing:2px;margin:.3rem 0}
+.tm-display.work{color:var(--ok)}.tm-display.rest{color:var(--warn)}
+.tm-phase{text-align:center;font-size:.9rem;font-weight:700;letter-spacing:2px;margin-bottom:.2rem;height:1.1rem}
+.tm-phase.work{color:var(--ok)}.tm-phase.rest{color:var(--warn)}
+.tm-presets{display:flex;gap:.4rem;justify-content:center;margin-bottom:.9rem;flex-wrap:wrap}
+.tm-preset{padding:.35rem .8rem;background:var(--bg3);border:1px solid var(--border);border-radius:20px;font-size:.78rem;cursor:pointer;color:var(--white)}
+.tm-preset.on{border-color:var(--acc);color:var(--acc)}
+.tm-ctrls{display:flex;gap:.5rem}
+.tm-btn{flex:1;padding:.75rem;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer}
+.tm-btn.primary{background:var(--acc);color:#fff}
+.tm-btn.ghost{background:var(--bg3);color:var(--white);border:1px solid var(--border)}
+.tm-close{position:absolute;top:.8rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer}
 .exbig{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:.7rem;overflow:hidden}
 .exbig.done{border-color:var(--ok)}
 .exbig-h{display:flex;align-items:center;gap:.7rem;padding:.85rem 1rem;cursor:pointer}
@@ -284,6 +314,23 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;li
   <button class="tabitem" data-tab="feedback" onclick="switchTab('feedback')"><span class="ic">&#128172;</span><span data-i="tab_fb">Opinió</span></button>
 </div>
 
+<button class="timer-fab" id="timerFab" onclick="openTimer()">⏱</button>
+<div class="timer-panel" id="timerPanel">
+  <button class="tm-close" onclick="closeTimer()">✕</button>
+  <div class="grab"></div>
+  <div class="tm-modes">
+    <div class="tm-mode on" data-mode="stopwatch" onclick="setTimerMode('stopwatch')" data-i="tm_stopwatch">Lliure</div>
+    <div class="tm-mode" data-mode="countdown" onclick="setTimerMode('countdown')" data-i="tm_countdown">Compte enrere</div>
+    <div class="tm-mode" data-mode="tabata" onclick="setTimerMode('tabata')" data-i="tm_tabata">Tabata</div>
+  </div>
+  <div class="tm-phase" id="tmPhase"></div>
+  <div class="tm-display" id="tmDisplay">00:00</div>
+  <div class="tm-presets" id="tmPresets"></div>
+  <div class="tm-ctrls">
+    <button class="tm-btn ghost" id="tmReset" onclick="resetTimer()" data-i="tm_reset">Reiniciar</button>
+    <button class="tm-btn primary" id="tmToggle" onclick="toggleTimer()" data-i="tm_start">Iniciar</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
 
@@ -350,6 +397,17 @@ const UI = {
   day:{ca:'Dia',es:'Día'},
   start_session:{ca:'▶ Iniciar sessió',es:'▶ Iniciar sesión'},
   warmup_title:{ca:'Escalfament (5 min)',es:'Calentamiento (5 min)'},
+  timer:{ca:'Cronòmetre',es:'Cronómetro'},
+  tm_stopwatch:{ca:'Lliure',es:'Libre'},
+  tm_countdown:{ca:'Compte enrere',es:'Cuenta atrás'},
+  tm_tabata:{ca:'Tabata',es:'Tabata'},
+  tm_start:{ca:'Iniciar',es:'Iniciar'},
+  tm_pause:{ca:'Pausa',es:'Pausa'},
+  tm_reset:{ca:'Reiniciar',es:'Reiniciar'},
+  tm_work:{ca:'FEINA',es:'TRABAJO'},
+  tm_rest:{ca:'DESCANS',es:'DESCANSO'},
+  tm_round:{ca:'Ronda',es:'Ronda'},
+  tm_done:{ca:'Fet!',es:'¡Hecho!'},
   warmup_txt:{ca:'20 girs de braços · 10 girs de coll · 30 s saltar corda o córrer al lloc · 25 jumping jacks · 5 burpees.',es:'20 giros de brazos · 10 giros de cuello · 30 s saltar cuerda o correr en el sitio · 25 jumping jacks · 5 burpees.'},
   mark_done:{ca:'Marcar com fet',es:'Marcar como hecho'},
   done:{ca:'✓ Fet',es:'✓ Hecho'},
@@ -828,6 +886,7 @@ function rerenderAll(){
   if(document.getElementById('scr-gloss').classList.contains('active')) renderGloss();
   if(document.getElementById('scr-feedback').classList.contains('active')) renderFeedback();
   if(document.getElementById('scr-session').classList.contains('active') && curSession) renderSession();
+  if(document.getElementById('timerPanel').classList.contains('show')) renderTimer();
 }
 
 // ============ NAVIGATION ============
@@ -837,6 +896,7 @@ function showScreen(id){
   window.scrollTo(0,0);
 }
 function switchTab(tab){
+  hideTimer();
   showScreen('scr-'+tab);
   document.querySelectorAll('.tabitem').forEach(el=>el.classList.toggle('on', el.dataset.tab===tab));
   if(tab==='train'){ renderProfile(); renderStats(); renderWeeks(); renderLvlupAlert(); }
@@ -980,8 +1040,13 @@ function openSession(wi,di){
   curSessionDone={};
   showScreen('scr-session');
   renderSession();
+  document.getElementById('timerFab').classList.add('show');
 }
-function closeSession(){ switchTab('train'); }
+function closeSession(){ hideTimer(); switchTab('train'); }
+function hideTimer(){
+  document.getElementById('timerFab').classList.remove('show');
+  document.getElementById('timerPanel').classList.remove('show');
+}
 function renderSession(){
   const w=WEEKS[curSession.wi], d=w.days[curSession.di];
   let injWarns='';
@@ -1231,6 +1296,128 @@ function saveAll(){
   localStorage.setItem('cf_sescount',String(sessionCount));
 }
 
+
+// ============ TIMER / STOPWATCH ============
+let tmMode='stopwatch';
+let tmRunning=false;
+let tmInterval=null;
+let tmElapsed=0;          // stopwatch: seconds counted up
+let tmRemaining=0;        // countdown: seconds left
+let tmPreset=60;          // countdown selected seconds
+// tabata
+let tmTabPhase='work';    // 'work' | 'rest'
+let tmTabRound=1;
+let tmTabWork=20, tmTabRest=10, tmTabRounds=8;
+let tmTabLeft=20;
+
+const TM_PRESETS=[
+  {label:'1 min',s:60},{label:'2 min',s:120},
+  {label:'90 s',s:90},{label:'7 min',s:420},
+];
+
+function openTimer(){
+  document.getElementById('timerPanel').classList.add('show');
+  document.getElementById('timerFab').classList.remove('show');
+  renderTimer();
+}
+function closeTimer(){
+  document.getElementById('timerPanel').classList.remove('show');
+  if(document.getElementById('scr-session').classList.contains('active'))
+    document.getElementById('timerFab').classList.add('show');
+}
+function setTimerMode(m){
+  stopTick();
+  tmMode=m; tmRunning=false;
+  document.querySelectorAll('.tm-mode').forEach(el=>el.classList.toggle('on',el.dataset.mode===m));
+  tmElapsed=0; tmRemaining=tmPreset; tmTabRound=1; tmTabPhase='work'; tmTabLeft=tmTabWork;
+  renderTimer();
+}
+function renderTimer(){
+  const disp=document.getElementById('tmDisplay');
+  const phase=document.getElementById('tmPhase');
+  const presets=document.getElementById('tmPresets');
+  const toggle=document.getElementById('tmToggle');
+  toggle.textContent = tmRunning ? t('tm_pause') : t('tm_start');
+  // presets only for countdown
+  if(tmMode==='countdown'){
+    presets.style.display='flex';
+    presets.innerHTML=TM_PRESETS.map(p=>`<div class="tm-preset ${tmPreset===p.s?'on':''}" onclick="setPreset(${p.s})">${p.label}</div>`).join('');
+  } else { presets.style.display='none'; presets.innerHTML=''; }
+  // display
+  let secs, cls='', ph='';
+  if(tmMode==='stopwatch'){ secs=tmElapsed; }
+  else if(tmMode==='countdown'){ secs=tmRemaining; }
+  else { // tabata
+    secs=tmTabLeft;
+    cls=tmTabPhase==='work'?'work':'rest';
+    ph=`<span class="tm-phase ${cls}">${tmTabPhase==='work'?t('tm_work'):t('tm_rest')} · ${t('tm_round')} ${tmTabRound}/${tmTabRounds}</span>`;
+  }
+  disp.className='tm-display'+(cls?' '+cls:'');
+  disp.textContent=fmtTime(secs);
+  phase.innerHTML=ph;
+}
+function fmtTime(s){
+  s=Math.max(0,Math.round(s));
+  const m=Math.floor(s/60), ss=s%60;
+  return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+function setPreset(s){ tmPreset=s; tmRemaining=s; if(!tmRunning) renderTimer(); }
+function toggleTimer(){ tmRunning ? pauseTimer() : startTimer(); }
+function startTimer(){
+  tmRunning=true;
+  // init values if at zero
+  if(tmMode==='countdown' && tmRemaining<=0) tmRemaining=tmPreset;
+  if(tmMode==='tabata' && tmTabRound>tmTabRounds){ tmTabRound=1; tmTabPhase='work'; tmTabLeft=tmTabWork; }
+  let last=Date.now();
+  tmInterval=setInterval(()=>{
+    const now=Date.now(); const dt=(now-last)/1000; last=now;
+    tick(dt);
+  },200);
+  renderTimer();
+}
+function pauseTimer(){ tmRunning=false; stopTick(); renderTimer(); }
+function stopTick(){ if(tmInterval){ clearInterval(tmInterval); tmInterval=null; } }
+function resetTimer(){
+  stopTick(); tmRunning=false;
+  tmElapsed=0; tmRemaining=tmPreset; tmTabRound=1; tmTabPhase='work'; tmTabLeft=tmTabWork;
+  renderTimer();
+}
+function tick(dt){
+  if(tmMode==='stopwatch'){ tmElapsed+=dt; }
+  else if(tmMode==='countdown'){
+    tmRemaining-=dt;
+    if(tmRemaining<=0){ tmRemaining=0; beep(2); buzz(); pauseTimer(); showToast(t('tm_done')); return; }
+  }
+  else { // tabata
+    tmTabLeft-=dt;
+    if(tmTabLeft<=0){
+      if(tmTabPhase==='work'){ tmTabPhase='rest'; tmTabLeft=tmTabRest; beep(1); buzz(); }
+      else {
+        tmTabRound++;
+        if(tmTabRound>tmTabRounds){ beep(3); buzz(); pauseTimer(); showToast(t('tm_done')); tmTabRound=tmTabRounds; tmTabLeft=0; renderTimer(); return; }
+        tmTabPhase='work'; tmTabLeft=tmTabWork; beep(2); buzz();
+      }
+    }
+  }
+  renderTimer();
+}
+// audio beep
+let _audioCtx=null;
+function beep(times){
+  try{
+    _audioCtx = _audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    let when=_audioCtx.currentTime;
+    for(let i=0;i<times;i++){
+      const o=_audioCtx.createOscillator(), g=_audioCtx.createGain();
+      o.frequency.value=880; o.connect(g); g.connect(_audioCtx.destination);
+      g.gain.setValueAtTime(0.15,when); g.gain.exponentialRampToValueAtTime(0.001,when+0.15);
+      o.start(when); o.stop(when+0.15);
+      when+=0.22;
+    }
+  }catch(e){}
+}
+function buzz(){ if(navigator.vibrate) navigator.vibrate(180); }
+
 // ============ INIT ============
 function init(){
   applyStaticI18n();
@@ -1238,6 +1425,13 @@ function init(){
     document.getElementById('loadBtn').style.display='inline-block';
   }
 }
+// ============ PWA: registre del service worker ============
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
 init();
 </script>
 </body>
