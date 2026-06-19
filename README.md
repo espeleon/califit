@@ -1,142 +1,88 @@
-# CaliFit 💪
+# CaliFit
 
-**App de calistenia progresiva adaptada a tu nivel.**  
-Sin máquinas. Sin gimnasio. Solo tú.
-
----
-
-## ¿Qué es CaliFit?
-
-CaliFit es una app web de una sola página (HTML/CSS/JS puro, sin dependencias) que genera planes de entrenamiento de calistenia personalizados según tu nivel, días disponibles y posibles dolencias físicas.
-
-### Funcionalidades
-
-- **Onboarding completo** — nivel, días/semana, sexo (para umbrales de repeticiones), dolencias
-- **Plan de sesiones adaptado** — 3, 4 o 5 días según disponibilidad, con 4–5 ejercicios por sesión
-- **Vídeos incrustados** — demostración de cada ejercicio directamente en la app
-- **Adaptaciones por dolencia** — avisos específicos para lumbar, hombros, rodillas, muñecas y cervicales
-- **Calendario visual** — marca los días que has entrenado
-- **Progresión por niveles** — 5 niveles por ejercicio con tiempos estimados de progreso
-- **Historial** — registro de todas las sesiones completadas
-- **Guía para correr** — plan de 8 semanas de cero a 30 minutos continuos
-- **Memoria persistente** — usa localStorage, recuerda tu perfil entre sesiones
-
-### Ejercicios incluidos
-
-| Ejercicio | Niveles | Músculo principal |
-|-----------|---------|-------------------|
-| Flexiones | 1–5 | Pecho, tríceps, hombros |
-| Flexiones Pike | 1–5 | Hombros, trapecios |
-| Dominadas | 1–5 | Dorsales, bíceps |
-| Sentadillas | 1–5 | Cuádriceps, glúteos |
-| Core/Abdominales | 1–5 | Recto abdominal, oblicuos |
-| Plancha isométrica | 1–5 | Core completo |
-| Desplantes | 1–5 | Piernas, glúteos |
+App de calistènia de 10 setmanes basada en el mètode *Desencadenado* (Fitness Revolucionario).
+Bilingüe català / castellà, amb cronòmetre, calendari, sistema de nivells per exercici i guia per començar a córrer. Funciona com a app instal·lable al mòbil (PWA).
 
 ---
 
-## Publicar en GitHub Pages — Guía paso a paso
+## Fitxers del projecte
 
-### Paso 1 — Crear cuenta en GitHub
+Tots han d'anar a la **mateixa carpeta arrel** del repo:
 
-Si no tienes cuenta, ve a [github.com](https://github.com) y crea una gratuita.
+| Fitxer | Què és |
+|---|---|
+| `index.html` | L'app sencera (HTML + CSS + JS en un sol fitxer) |
+| `manifest.json` | Metadades de la PWA: nom, colors, icones |
+| `sw.js` | Service worker: fa que funcioni sense connexió |
+| `icon-192.png` | Icona 192×192 |
+| `icon-512.png` | Icona 512×512 |
+| `icon-512-maskable.png` | Icona per a Android (zona segura) |
+| `apple-touch-icon.png` | Icona per a iPhone (180×180) |
 
-### Paso 2 — Crear un repositorio nuevo
+---
 
-1. Haz clic en el botón verde **"New"** (o el **"+"** en la esquina superior derecha → *New repository*)
-2. Rellena los campos:
-   - **Repository name:** `califit` (o el nombre que prefieras)
-   - **Description:** `App de calistenia progresiva`
-   - **Visibility:** `Public` ← importante, GitHub Pages gratuito requiere repositorio público
-   - Marca **"Add a README file"** (así se inicializa el repo)
-3. Haz clic en **"Create repository"**
+## Publicar a GitHub Pages
 
-### Paso 3 — Subir los archivos
+1. Puja **tots els fitxers** al repo `espeleon/califit` (commit + push), a la carpeta arrel.
+2. A GitHub: **Settings → Pages → Source: branch `main` / carpeta `/root`**.
+3. Espera ~1 minut. L'app queda a:
 
-Tienes dos opciones:
+   **https://espeleon.github.io/califit/**
 
-**Opción A — Desde el navegador (más fácil):**
+---
 
-1. En tu repositorio recién creado, haz clic en **"Add file"** → **"Upload files"**
-2. Arrastra el archivo `califit-app.html` a la zona de subida
-3. **Renómbralo a `index.html`** antes de subirlo (o bórralo y súbelo con ese nombre)
-4. En el campo *"Commit changes"* escribe: `Primera versión de CaliFit`
-5. Haz clic en **"Commit changes"**
-6. Repite para subir este `README.md`
+## Instal·lar-la a l'iPhone (com una app)
 
-**Opción B — Desde la terminal (si tienes Git instalado):**
+1. Obre `https://espeleon.github.io/califit/` amb **Safari** (no Chrome — a iOS només Safari pot instal·lar PWAs).
+2. Toca el botó **Compartir** (el quadrat amb la fletxa cap amunt).
+3. Baixa i toca **"Afegir a la pantalla d'inici"**.
+4. Apareix la icona de CaliFit. En obrir-la des d'allà: pantalla completa, sense barra del navegador, i funciona offline.
 
-```bash
-git clone https://github.com/TUUSUARIO/califit.git
-cd califit
-# Copia califit-app.html aquí y renómbralo a index.html
-cp /ruta/a/califit-app.html index.html
-git add .
-git commit -m "Primera versión de CaliFit"
-git push origin main
+### A Android
+Chrome mostra automàticament un avís **"Instal·lar app"** o un botó al menú (⋮) → **"Instal·lar aplicació"**.
+
+---
+
+## ⚠️ IMPORTANT: cada cop que actualitzis l'app
+
+Quan facis canvis a `index.html` (o qualsevol fitxer) i els pugis, has de **canviar el número de versió** del service worker perquè els usuaris rebin els canvis i no es quedin amb la versió antiga en cau:
+
+A `sw.js`, línia 4:
+
+```js
+const CACHE_VERSION = 'califit-v1';   // → canvia a 'califit-v2', 'v3', etc.
 ```
 
-### Paso 4 — Activar GitHub Pages
-
-1. Ve a tu repositorio en GitHub
-2. Haz clic en **"Settings"** (el engranaje, en el menú superior del repo)
-3. En el menú lateral izquierdo, busca y haz clic en **"Pages"**
-4. En la sección **"Branch"**, selecciona:
-   - Branch: `main`
-   - Folder: `/ (root)`
-5. Haz clic en **"Save"**
-
-### Paso 5 — Esperar y acceder
-
-- GitHub tarda **1–3 minutos** en desplegar la primera vez
-- Verás un mensaje verde con la URL: `https://TUUSUARIO.github.io/califit`
-- ¡Listo! Los vídeos de YouTube funcionarán correctamente desde `https://`
+Puja `sw.js` amb el número nou. Els usuaris rebran la versió actualitzada la propera vegada que obrin l'app amb connexió.
 
 ---
 
-## Dominio personalizado (opcional)
+## Funcionalitats
 
-Si quieres una URL como `califit.es` o `tudominio.com/califit`:
-
-1. Compra el dominio en [dondominio.com](https://dondominio.com) o similar (~10€/año)
-2. En la configuración DNS del dominio, añade un registro CNAME:
-   - **Nombre:** `www`
-   - **Valor:** `TUUSUARIO.github.io`
-3. En GitHub Pages (Settings → Pages), escribe tu dominio en el campo **"Custom domain"**
-4. Marca **"Enforce HTTPS"**
-
----
-
-## Actualizar la app
-
-Cuando quieras modificar algo:
-
-1. Edita el archivo `index.html` en tu repositorio (botón del lápiz ✏️ en GitHub)
-2. O sube una nueva versión desde tu ordenador
-3. Los cambios se despliegan automáticamente en 1–2 minutos
+- **Onboarding** de 5 passos (nivell, dies/setmana, punt de partida, molèsties, nom).
+- **Programa de 10 setmanes** fidel al llibre: piràmides i supersets (setm. 1-2), força (3-4), potència (5-6), acondicionament global (7-8), resistència + Tabata (9), HIIT pur (10).
+- **Sessions** amb escalfament, descripció del mètode, vídeos de YouTube i exercicis marcables.
+- **Cronòmetre** amb tres modes: lliure (compta amunt), compte enrere (presets d'1/2/7 min) i Tabata (8×20s/10s amb avís sonor i vibració).
+- **Calendari** d'entrenaments i **historial** de sessions.
+- **Nivells per exercici** (5 nivells cadascun) amb botó "Estic aquí" i suggeriment de pujada cada 3 sessions.
+- **Guia per començar a córrer** progressiva de 8 setmanes.
+- **Glossari** de termes tècnics.
+- **Formulari d'opinió** (enviat via Formspree).
+- **Canvi d'idioma** CA / ES instantani (botó a dalt a la dreta), amb preferència desada.
 
 ---
 
-## Estructura del proyecto
+## Notes tècniques
 
-```
-califit/
-├── index.html    ← La app completa (todo en un solo archivo)
-└── README.md     ← Esta guía
-```
-
-No hay dependencias externas instalables. Las fuentes (Google Fonts) se cargan desde CDN automáticamente si hay conexión a internet.
+- Tot l'estat (perfil, historial, nivells) es desa al **localStorage** del dispositiu. No hi ha servidor ni comptes.
+- El service worker **només funciona sobre HTTPS** (GitHub Pages ja el serveix) o `localhost`. Obrint el fitxer amb `file://` (doble clic local) el SW no s'activa — és normal.
+- A iOS les notificacions push de PWA només funcionen des d'iOS 16.4 i amb l'app instal·lada. Ara mateix l'app no en fa servir.
 
 ---
 
-## Tecnología
+## Si algun dia la vols a l'App Store
 
-- HTML5 / CSS3 / JavaScript vanilla
-- Google Fonts (Bebas Neue + DM Sans)
-- localStorage para persistencia de datos
-- YouTube embed para vídeos de demostración
-
----
+L'app web es pot empaquetar amb [Capacitor](https://capacitorjs.com/) reaprofitant el 100% del codi actual. Necessitaries: un Mac amb Xcode i un compte d'Apple Developer (99 €/any). Però per validar i fer servir l'app, la PWA n'hi ha prou.
 
 ## Licencia
 
