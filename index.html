@@ -62,7 +62,8 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;li
 .avatar{width:48px;height:48px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:1.5rem;color:#fff;flex-shrink:0}
 .profile-info h3{font-size:1.05rem;font-weight:700}
 .profile-info p{color:var(--muted);font-size:.8rem}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:.5rem}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.5rem}
+@media(max-width:420px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
 .stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.75rem;text-align:center}
 .stat .n{font-family:'Bebas Neue',cursive;font-size:1.7rem;color:var(--acc);line-height:1}
 .stat .l{color:var(--muted);font-size:.68rem;margin-top:.2rem;text-transform:uppercase;letter-spacing:.5px}
@@ -409,6 +410,12 @@ const UI = {
   tm_round:{ca:'Ronda',es:'Ronda'},
   tm_done:{ca:'Fet!',es:'¡Hecho!'},
   warmup_txt:{ca:'20 girs de braços · 10 girs de coll · 30 s saltar corda o córrer al lloc · 25 jumping jacks · 5 burpees.',es:'20 giros de brazos · 10 giros de cuello · 30 s saltar cuerda o correr en el sitio · 25 jumping jacks · 5 burpees.'},
+  cooldown_title:{ca:'Estiraments (5 min)',es:'Estiramientos (5 min)'},
+  cooldown_txt:{ca:'En acabar, estira els músculs treballats. Mantingues cada estirament 20-30 s sense rebotar: pit i espatlles a la paret, tríceps darrere el cap, quàdriceps dret amb el peu a la mà, isquiotibials tocant la punta del peu, esquena en posició de gat-vaca i coll suaument a cada costat.',es:'Al terminar, estira los músculos trabajados. Mantén cada estiramiento 20-30 s sin rebotes: pecho y hombros en la pared, tríceps detrás de la cabeza, cuádriceps de pie con el pie en la mano, isquiotibiales tocando la punta del pie, espalda en postura gato-vaca y cuello suave a cada lado.'},
+  session_time:{ca:'Temps de la sessió',es:'Tiempo de la sesión'},
+  stat_time:{ca:'Temps total',es:'Tiempo total'},
+  open_timer:{ca:'⏱ Obrir cronòmetre',es:'⏱ Abrir cronómetro'},
+  run_timer_hint:{ca:'Fes servir el cronòmetre per controlar els intervals de córrer i caminar.',es:'Usa el cronómetro para controlar los intervalos de correr y caminar.'},
   mark_done:{ca:'Marcar com fet',es:'Marcar como hecho'},
   done:{ca:'✓ Fet',es:'✓ Hecho'},
   finish_session:{ca:'Finalitzar sessió',es:'Finalizar sesión'},
@@ -852,6 +859,7 @@ let onbStep = 0;
 let onbData = {level:null, days:4, build:null, injuries:[], name:''};
 let curSession = null;
 let curSessionDone = {};
+let curSessionStart = null;
 let calDate = new Date();
 
 if(!exLevels){ exLevels = {}; EX_ORDER.forEach(k=>exLevels[k]=1); }
@@ -896,7 +904,7 @@ function showScreen(id){
   window.scrollTo(0,0);
 }
 function switchTab(tab){
-  hideTimer();
+  hideTimerPanel();
   showScreen('scr-'+tab);
   document.querySelectorAll('.tabitem').forEach(el=>el.classList.toggle('on', el.dataset.tab===tab));
   if(tab==='train'){ renderProfile(); renderStats(); renderWeeks(); renderLvlupAlert(); }
@@ -905,6 +913,7 @@ function switchTab(tab){
   if(tab==='run') renderRun();
   if(tab==='gloss') renderGloss();
   if(tab==='feedback') renderFeedback();
+  updateTimerFab();
 }
 
 // ============ ONBOARDING ============
@@ -985,10 +994,13 @@ function renderStats(){
   const now=new Date();
   const weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay());
   const thisWeek=history.filter(h=>new Date(h.date)>=weekStart).length;
+  const totalSec=history.reduce((a,h)=>a+(h.dur||0),0);
+  const totalTxt = totalSec>=3600 ? Math.round(totalSec/3600*10)/10+'h' : Math.round(totalSec/60)+'min';
   document.getElementById('statGrid').innerHTML=
     `<div class="stat"><div class="n">${history.length}</div><div class="l">${t('stat_sessions')}</div></div>
      <div class="stat"><div class="n">${thisWeek}</div><div class="l">${t('stat_week')}</div></div>
-     <div class="stat"><div class="n">${calcStreak()}</div><div class="l">${t('stat_streak')}</div></div>`;
+     <div class="stat"><div class="n">${calcStreak()}</div><div class="l">${t('stat_streak')}</div></div>
+     <div class="stat"><div class="n" style="font-size:1.3rem">${totalTxt}</div><div class="l">${t('stat_time')}</div></div>`;
 }
 function calcStreak(){
   if(history.length===0) return 0;
@@ -1038,15 +1050,22 @@ function renderWeekDay(wi,di){
 function openSession(wi,di){
   curSession={wi,di};
   curSessionDone={};
+  curSessionStart=Date.now();
   showScreen('scr-session');
   renderSession();
-  document.getElementById('timerFab').classList.add('show');
+  updateTimerFab();
 }
-function closeSession(){ hideTimer(); switchTab('train'); }
-function hideTimer(){
-  document.getElementById('timerFab').classList.remove('show');
-  document.getElementById('timerPanel').classList.remove('show');
+function closeSession(){ switchTab('train'); }
+// FAB visible if: we're in a session, in the running tab, OR the timer is running.
+// This keeps the timer reachable even if you leave the exercise screen.
+function updateTimerFab(){
+  const fab=document.getElementById('timerFab');
+  const inSession=document.getElementById('scr-session').classList.contains('active');
+  const inRun=document.getElementById('scr-run').classList.contains('active');
+  if(inSession || inRun || tmRunning) fab.classList.add('show');
+  else fab.classList.remove('show');
 }
+function hideTimerPanel(){ document.getElementById('timerPanel').classList.remove('show'); }
 function renderSession(){
   const w=WEEKS[curSession.wi], d=w.days[curSession.di];
   let injWarns='';
@@ -1085,6 +1104,7 @@ function renderSession(){
      ${injWarns}
      <div class="method-box"><b>${L(w.sub)}</b>${L(d.note)}</div>
      ${exHtml}
+     <div class="method-box" style="border-color:rgba(76,175,125,.3);background:rgba(76,175,125,.08)"><b style="color:var(--ok)">🧘 ${t('cooldown_title')}</b>${t('cooldown_txt')}</div>
      <button class="finishbtn" id="finishBtn" ${allDone?'':'disabled'} onclick="finishSession()">${t('finish_session')}</button>`;
 }
 function toggleExbig(ei){ document.getElementById('exbig'+ei).classList.toggle('open'); }
@@ -1095,14 +1115,25 @@ function toggleDone(ei){
 }
 function finishSession(){
   const w=WEEKS[curSession.wi];
-  history.push({date:new Date().toISOString(), week:curSession.wi, day:curSession.di, title:L(w.title)});
+  const durSec = curSessionStart ? Math.round((Date.now()-curSessionStart)/1000) : 0;
+  history.push({date:new Date().toISOString(), week:curSession.wi, day:curSession.di, title:L(w.title), dur:durSec});
   sessionCount++;
+  curSessionStart=null;
   saveAll();
   // level-up suggestion every 3 sessions
   const showLvlup = sessionCount % 3 === 0;
-  showModal('🎉', t('session_done'), t('session_done_txt'), [
+  const durTxt = durSec>0 ? `<br><br><b>${t('session_time')}: ${fmtDur(durSec)}</b>` : '';
+  showModal('🎉', t('session_done'), t('session_done_txt')+durTxt, [
     {label:t('continue'), action:()=>{ closeModal(); switchTab('train'); if(showLvlup) setTimeout(()=>renderLvlupAlert(true),300); }}
   ]);
+}
+// format seconds as "Xh Ym" / "Ym Zs" / "Zs"
+function fmtDur(s){
+  s=Math.max(0,Math.round(s));
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=s%60;
+  if(h>0) return h+'h '+m+'min';
+  if(m>0) return m+'min '+ss+'s';
+  return ss+'s';
 }
 
 // ============ EXERCISE MATCHING (for levels) ============
@@ -1176,7 +1207,7 @@ function renderHistory(){
     const d=new Date(h.date);
     return `<div class="histitem">
       <div class="dt"><div class="d">${d.getDate()}</div><div class="m">${mns[d.getMonth()].slice(0,3)}</div></div>
-      <div class="info"><div class="t">${h.title}</div><div class="s">${t('day')} ${h.day+1} · ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}</div></div>
+      <div class="info"><div class="t">${h.title}</div><div class="s">${t('day')} ${h.day+1} · ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}${h.dur?' · ⏱ '+fmtDur(h.dur):''}</div></div>
     </div>`;
   }).join('');
   document.getElementById('histList').innerHTML=html;
@@ -1197,7 +1228,8 @@ function renderRun(){
   document.getElementById('runIntro').textContent=t('run_intro');
   const kneeWarn=(profile&&profile.injuries&&profile.injuries.includes('knee'))?`<div class="warn-inj">${t('run_knee_warn')}</div>`:'';
   const runT=LANG==='ca'?'Córrer':'Correr', walkT=LANG==='ca'?'Caminar':'Caminar', repsT=LANG==='ca'?'Repeticions':'Repeticiones', totalT=LANG==='ca'?'Durada':'Duración';
-  const html=kneeWarn+RUN_WEEKS.map((r,i)=>`<div class="runweek" id="runweek${i}">
+  const timerBtn=`<button class="btn full" style="margin-bottom:1rem" onclick="openTimer()">${t('open_timer')}</button><p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem">${t('run_timer_hint')}</p>`;
+  const html=kneeWarn+timerBtn+RUN_WEEKS.map((r,i)=>`<div class="runweek" id="runweek${i}">
     <div class="runweek-h" onclick="toggleRunWeek(${i})">
       <div class="runweek-badge">${t('run_week')} ${i+1}</div>
       <div class="runweek-t">${runT} ${r.run} / ${walkT} ${r.walk}<small>${r.reps}× · ${r.total}</small></div>
@@ -1322,8 +1354,7 @@ function openTimer(){
 }
 function closeTimer(){
   document.getElementById('timerPanel').classList.remove('show');
-  if(document.getElementById('scr-session').classList.contains('active'))
-    document.getElementById('timerFab').classList.add('show');
+  updateTimerFab();
 }
 function setTimerMode(m){
   stopTick();
@@ -1374,8 +1405,9 @@ function startTimer(){
     tick(dt);
   },200);
   renderTimer();
+  updateTimerFab();
 }
-function pauseTimer(){ tmRunning=false; stopTick(); renderTimer(); }
+function pauseTimer(){ tmRunning=false; stopTick(); renderTimer(); updateTimerFab(); }
 function stopTick(){ if(tmInterval){ clearInterval(tmInterval); tmInterval=null; } }
 function resetTimer(){
   stopTick(); tmRunning=false;
