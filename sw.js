@@ -1,7 +1,7 @@
 // CaliFit Service Worker
 // ⚠️ PUJA AQUEST NÚMERO cada cop que publiquis una versió nova de l'app
 // (v5 → v6 → v7...). Així els usuaris reben els canvis i s'esborra la cau antiga.
-const CACHE_VERSION = 'califit-v5';
+const CACHE_VERSION = 'califit-v6';
 
 // Fitxers per tenir disponibles sense connexió
 const ASSETS = [
