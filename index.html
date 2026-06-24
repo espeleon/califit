@@ -100,8 +100,13 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;li
 .sess-head p{color:var(--muted);font-size:.85rem}
 .method-box{background:rgba(232,164,39,.1);border:1px solid rgba(232,164,39,.3);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem}
 .method-box b{color:var(--warn);display:block;margin-bottom:.25rem}
-.timer-fab{position:fixed;right:1rem;bottom:5rem;z-index:60;width:54px;height:54px;border-radius:50%;background:var(--acc);border:none;color:#fff;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);display:none;align-items:center;justify-content:center}
+.timer-fab{position:fixed;right:1rem;bottom:5rem;z-index:60;min-width:54px;height:48px;padding:0 16px;border-radius:24px;background:var(--acc);border:none;color:#fff;font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:1px;cursor:grab;box-shadow:0 4px 16px rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;gap:7px;touch-action:none;user-select:none;-webkit-user-select:none;transition:background .2s}
 .timer-fab.show{display:flex}
+.timer-fab.work{background:var(--ok)}
+.timer-fab.rest{background:var(--warn)}
+.timer-fab.paused{background:var(--bg3);border:1.5px solid var(--acc);color:var(--acc)}
+.timer-fab .fab-ico{font-size:1.05rem;line-height:1}
+.timer-fab.dragging{cursor:grabbing;opacity:.92;box-shadow:0 8px 28px rgba(0,0,0,.6)}
 .timer-panel{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--bg2);border-top:1px solid var(--border);border-radius:18px 18px 0 0;padding:1.1rem 1.1rem 1.4rem;transform:translateY(110%);transition:transform .25s;box-shadow:0 -8px 30px rgba(0,0,0,.5)}
 .timer-panel.show{transform:translateY(0)}
 .timer-panel .grab{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto .9rem}
@@ -320,7 +325,7 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;li
   <button class="tabitem" data-tab="feedback" onclick="switchTab('feedback')"><span class="ic">&#128172;</span><span data-i="tab_fb">Opinió</span></button>
 </div>
 
-<button class="timer-fab" id="timerFab" onclick="openTimer()">⏱</button>
+<button class="timer-fab" id="timerFab"><span class="fab-ico">⏱</span><span id="fabTime">00:00</span></button>
 <div class="timer-panel" id="timerPanel">
   <button class="tm-close" onclick="closeTimer()" title="Minimitzar">⌄</button>
   <div class="grab"></div>
@@ -409,6 +414,10 @@ const UI = {
   tm_pause:{ca:'Pausa',es:'Pausa'},
   tm_continue:{ca:'Continuar',es:'Continuar'},
   tm_stop:{ca:'Parar',es:'Parar'},
+  rest_title:{ca:'Exercici fet!',es:'¡Ejercicio hecho!'},
+  rest_q:{ca:'Vols iniciar el descans?',es:'¿Quieres iniciar el descanso?'},
+  rest_yes:{ca:'Descansar',es:'Descansar'},
+  rest_no:{ca:'No, gràcies',es:'No, gracias'},
   tm_minimize:{ca:'Minimitzar',es:'Minimizar'},
   tm_closeall:{ca:'Tancar',es:'Cerrar'},
   tm_reset:{ca:'Reiniciar',es:'Reiniciar'},
@@ -1118,9 +1127,34 @@ function renderSession(){
 }
 function toggleExbig(ei){ document.getElementById('exbig'+ei).classList.toggle('open'); }
 function toggleDone(ei){
-  curSessionDone[ei]=!curSessionDone[ei];
+  const nowDone=!curSessionDone[ei];
+  curSessionDone[ei]=nowDone;
   renderSession();
-  document.getElementById('exbig'+ei).classList.add('open');
+  const eb=document.getElementById('exbig'+ei);
+  if(eb) eb.classList.add('open');
+  // Descans automàtic: només en MARCAR fet (no en desmarcar) i si no és l'últim
+  if(nowDone){
+    const day=WEEKS[curSession.wi].days[curSession.di];
+    const allDone=day.ex.every((e,i)=>curSessionDone[i]);
+    if(!allDone) proposeRest();
+  }
+}
+// Proposa iniciar un descans de 60 s (1 min entre sèries, segons el mètode).
+function proposeRest(){
+  showModal('⏱', t('rest_title'), t('rest_q'), [
+    {label:t('rest_no'), action:closeModal, ghost:true},
+    {label:t('rest_yes'), action:()=>{ closeModal(); startRest(60); }}
+  ]);
+}
+function startRest(secs){
+  tmActive=true;
+  // força el mode compte enrere encara que ja hi estiguéssim
+  tmMode='countdown'; tmRunning=false; tmStarted=false; tmBase=0;
+  document.querySelectorAll('.tm-mode').forEach(el=>el.classList.toggle('on',el.dataset.mode==='countdown'));
+  tmPreset=secs;
+  openTimer();           // mostra el panell i munta presets
+  renderTimerStructure();
+  startTimer();          // arrenca el compte enrere
 }
 function finishSession(){
   const w=WEEKS[curSession.wi];
@@ -1397,6 +1431,7 @@ function closeTimer(){
 function stopTimer(){
   cancelLoop(); tmRunning=false; tmStarted=false; tmActive=false;
   tmBase=0; tmTabPhase='work'; tmTabRound=1;
+  releaseWakeLock();
   document.getElementById('timerPanel').classList.remove('show');
   updateTimerFab();
 }
@@ -1418,6 +1453,7 @@ function startTimer(){
   if(tmMode==='tabata'){ const s=tmTabataState(tmRunSecs()); if(s.done) tmBase=0; }
   tmRunning=true; tmStarted=true;
   tmAnchor=Date.now();
+  acquireWakeLock();
   renderControls();          // canvi de botó immediat
   updateTimerFab();
   loopTimer();
@@ -1425,6 +1461,7 @@ function startTimer(){
 function pauseTimer(){
   if(tmRunning){ tmBase=tmRunSecs(); tmRunning=false; }
   cancelLoop();
+  releaseWakeLock();
   renderControls();          // immediat
   updateTimerDisplay();
   updateTimerFab();
@@ -1433,6 +1470,7 @@ function pauseTimer(){
 function resetTimer(){
   cancelLoop(); tmRunning=false; tmStarted=false;
   tmBase=0; tmTabPhase='work'; tmTabRound=1;
+  releaseWakeLock();
   renderControls();
   updateTimerDisplay();
 }
@@ -1507,6 +1545,15 @@ function updateTimerDisplay(){
   }
   if(disp){ disp.className='tm-display'+(cls?' '+cls:''); disp.textContent=fmtTime(secs); }
   if(phase){ phase.className='tm-phase'+(cls?' '+cls:''); phase.textContent=ph; }
+  // --- píndola flotant: temps en viu + color per fase ---
+  const fab=document.getElementById('timerFab');
+  const fabTime=document.getElementById('fabTime');
+  if(fabTime) fabTime.textContent=fmtTime(secs);
+  if(fab){
+    fab.classList.remove('work','rest','paused');
+    if(tmMode==='tabata' && tmRunning && cls) fab.classList.add(cls);
+    else if(tmStarted && !tmRunning) fab.classList.add('paused');
+  }
 }
 function fmtTime(s){
   s=Math.max(0,Math.ceil(s-0.001));
@@ -1531,6 +1578,66 @@ function beep(times){
   }catch(e){}
 }
 function buzz(){ if(navigator.vibrate) navigator.vibrate(180); }
+
+// ============ WAKE LOCK (mantenir pantalla encesa amb el rellotge actiu) ============
+let _wakeLock=null;
+async function acquireWakeLock(){
+  try{
+    if('wakeLock' in navigator && !_wakeLock){
+      _wakeLock=await navigator.wakeLock.request('screen');
+      _wakeLock.addEventListener('release',()=>{ _wakeLock=null; });
+    }
+  }catch(e){}
+}
+async function releaseWakeLock(){
+  try{ if(_wakeLock){ await _wakeLock.release(); _wakeLock=null; } }catch(e){}
+}
+// re-demana el wake lock si tornes a l'app (iOS el deixa anar en sortir)
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible' && tmRunning) acquireWakeLock();
+});
+
+// ============ PÍNDOLA ARROSSEGABLE ============
+// Distingeix un toc (obre el panell) d'un arrossegament (mou la píndola).
+(function initDraggablePill(){
+  const fab=document.getElementById('timerFab');
+  if(!fab) return;
+  let dragging=false, moved=false, startX=0, startY=0, originX=0, originY=0;
+  function pointerDown(e){
+    const p=e.touches?e.touches[0]:e;
+    dragging=true; moved=false;
+    startX=p.clientX; startY=p.clientY;
+    const r=fab.getBoundingClientRect();
+    originX=r.left; originY=r.top;
+    fab.classList.add('dragging');
+  }
+  function pointerMove(e){
+    if(!dragging) return;
+    const p=e.touches?e.touches[0]:e;
+    const dx=p.clientX-startX, dy=p.clientY-startY;
+    if(Math.abs(dx)>6||Math.abs(dy)>6) moved=true;
+    let nx=originX+dx, ny=originY+dy;
+    // límits dins la finestra
+    const w=fab.offsetWidth, h=fab.offsetHeight;
+    nx=Math.max(6,Math.min(window.innerWidth-w-6,nx));
+    ny=Math.max(6,Math.min(window.innerHeight-h-6,ny));
+    fab.style.left=nx+'px'; fab.style.top=ny+'px';
+    fab.style.right='auto'; fab.style.bottom='auto';
+    if(e.cancelable) e.preventDefault();
+  }
+  function pointerUp(){
+    if(!dragging) return;
+    dragging=false;
+    fab.classList.remove('dragging');
+    if(!moved) openTimer();   // ha estat un toc → obre el panell
+  }
+  fab.addEventListener('mousedown',pointerDown);
+  fab.addEventListener('touchstart',pointerDown,{passive:true});
+  window.addEventListener('mousemove',pointerMove);
+  window.addEventListener('touchmove',pointerMove,{passive:false});
+  window.addEventListener('mouseup',pointerUp);
+  window.addEventListener('touchend',pointerUp);
+})();
 
 // ============ INIT ============
 function init(){
