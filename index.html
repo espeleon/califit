@@ -120,6 +120,7 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;li
 .tm-btn.primary{background:var(--acc);color:#fff}
 .tm-btn.ghost{background:var(--bg3);color:var(--white);border:1px solid var(--border)}
 .tm-close{position:absolute;top:.8rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer}
+.tm-closeall{display:block;width:100%;margin-top:.6rem;background:none;border:none;color:var(--muted);font-size:.82rem;cursor:pointer;padding:.4rem;text-decoration:underline;font-family:'DM Sans',sans-serif}
 .exbig{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:.7rem;overflow:hidden}
 .exbig.done{border-color:var(--ok)}
 .exbig-h{display:flex;align-items:center;gap:.7rem;padding:.85rem 1rem;cursor:pointer}
@@ -317,7 +318,7 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;li
 
 <button class="timer-fab" id="timerFab" onclick="openTimer()">⏱</button>
 <div class="timer-panel" id="timerPanel">
-  <button class="tm-close" onclick="closeTimer()">✕</button>
+  <button class="tm-close" onclick="closeTimer()" title="Minimitzar">⌄</button>
   <div class="grab"></div>
   <div class="tm-modes">
     <div class="tm-mode on" data-mode="stopwatch" onclick="setTimerMode('stopwatch')" data-i="tm_stopwatch">Lliure</div>
@@ -331,6 +332,7 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;li
     <button class="tm-btn ghost" id="tmReset" onclick="resetTimer()" data-i="tm_reset">Reiniciar</button>
     <button class="tm-btn primary" id="tmToggle" onclick="toggleTimer()" data-i="tm_start">Iniciar</button>
   </div>
+  <button class="tm-closeall" onclick="stopTimer()" data-i="tm_closeall">Tancar</button>
 </div>
 <div class="toast" id="toast"></div>
 <div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
@@ -404,6 +406,9 @@ const UI = {
   tm_tabata:{ca:'Tabata',es:'Tabata'},
   tm_start:{ca:'Iniciar',es:'Iniciar'},
   tm_pause:{ca:'Pausa',es:'Pausa'},
+  tm_continue:{ca:'Continuar',es:'Continuar'},
+  tm_minimize:{ca:'Minimitzar',es:'Minimizar'},
+  tm_closeall:{ca:'Tancar',es:'Cerrar'},
   tm_reset:{ca:'Reiniciar',es:'Reiniciar'},
   tm_work:{ca:'FEINA',es:'TRABAJO'},
   tm_rest:{ca:'DESCANS',es:'DESCANSO'},
@@ -1056,13 +1061,15 @@ function openSession(wi,di){
   updateTimerFab();
 }
 function closeSession(){ switchTab('train'); }
-// FAB visible if: we're in a session, in the running tab, OR the timer is running.
-// This keeps the timer reachable even if you leave the exercise screen.
+// El botó ⏱ es manté visible si:
+//  - el cronòmetre està "viu" (l'has obert o engegat i encara no l'has tancat), O
+//  - ets a la pantalla de sessió o de córrer.
+// Així el temps no es perd encara que et moguis d'una pantalla a una altra.
 function updateTimerFab(){
   const fab=document.getElementById('timerFab');
   const inSession=document.getElementById('scr-session').classList.contains('active');
   const inRun=document.getElementById('scr-run').classList.contains('active');
-  if(inSession || inRun || tmRunning) fab.classList.add('show');
+  if(tmActive || inSession || inRun) fab.classList.add('show');
   else fab.classList.remove('show');
 }
 function hideTimerPanel(){ document.getElementById('timerPanel').classList.remove('show'); }
@@ -1119,6 +1126,7 @@ function finishSession(){
   history.push({date:new Date().toISOString(), week:curSession.wi, day:curSession.di, title:L(w.title), dur:durSec});
   sessionCount++;
   curSessionStart=null;
+  stopTimer();
   saveAll();
   // level-up suggestion every 3 sessions
   const showLvlup = sessionCount % 3 === 0;
@@ -1332,6 +1340,8 @@ function saveAll(){
 // ============ TIMER / STOPWATCH ============
 let tmMode='stopwatch';
 let tmRunning=false;
+let tmStarted=false;  // true once started; distingueix Continuar de Iniciar
+let tmActive=false;   // true mentre el cronòmetre està "viu" (no tancat per l'usuari)
 let tmInterval=null;
 let tmElapsed=0;          // stopwatch: seconds counted up
 let tmRemaining=0;        // countdown: seconds left
@@ -1348,17 +1358,28 @@ const TM_PRESETS=[
 ];
 
 function openTimer(){
+  tmActive=true;
   document.getElementById('timerPanel').classList.add('show');
   document.getElementById('timerFab').classList.remove('show');
   renderTimer();
 }
+// La ✕ només minimitza el panell: el cronòmetre segueix viu i comptant,
+// i el botó ⏱ continua visible perquè el puguis recuperar.
 function closeTimer(){
+  document.getElementById('timerPanel').classList.remove('show');
+  updateTimerFab();
+}
+// Tancar del tot el cronòmetre (parar i amagar): des del botó Reiniciar quan ja està a zero,
+// o quan acabes la sessió.
+function stopTimer(){
+  stopTick(); tmRunning=false; tmStarted=false; tmActive=false;
+  tmElapsed=0; tmRemaining=tmPreset; tmTabRound=1; tmTabPhase='work'; tmTabLeft=tmTabWork;
   document.getElementById('timerPanel').classList.remove('show');
   updateTimerFab();
 }
 function setTimerMode(m){
   stopTick();
-  tmMode=m; tmRunning=false;
+  tmMode=m; tmRunning=false; tmStarted=false;
   document.querySelectorAll('.tm-mode').forEach(el=>el.classList.toggle('on',el.dataset.mode===m));
   tmElapsed=0; tmRemaining=tmPreset; tmTabRound=1; tmTabPhase='work'; tmTabLeft=tmTabWork;
   renderTimer();
@@ -1368,7 +1389,7 @@ function renderTimer(){
   const phase=document.getElementById('tmPhase');
   const presets=document.getElementById('tmPresets');
   const toggle=document.getElementById('tmToggle');
-  toggle.textContent = tmRunning ? t('tm_pause') : t('tm_start');
+  toggle.textContent = tmRunning ? t('tm_pause') : (tmStarted ? t('tm_continue') : t('tm_start'));
   // presets only for countdown
   if(tmMode==='countdown'){
     presets.style.display='flex';
@@ -1396,6 +1417,7 @@ function setPreset(s){ tmPreset=s; tmRemaining=s; if(!tmRunning) renderTimer(); 
 function toggleTimer(){ tmRunning ? pauseTimer() : startTimer(); }
 function startTimer(){
   tmRunning=true;
+  tmStarted=true;
   // init values if at zero
   if(tmMode==='countdown' && tmRemaining<=0) tmRemaining=tmPreset;
   if(tmMode==='tabata' && tmTabRound>tmTabRounds){ tmTabRound=1; tmTabPhase='work'; tmTabLeft=tmTabWork; }
@@ -1410,7 +1432,7 @@ function startTimer(){
 function pauseTimer(){ tmRunning=false; stopTick(); renderTimer(); updateTimerFab(); }
 function stopTick(){ if(tmInterval){ clearInterval(tmInterval); tmInterval=null; } }
 function resetTimer(){
-  stopTick(); tmRunning=false;
+  stopTick(); tmRunning=false; tmStarted=false;
   tmElapsed=0; tmRemaining=tmPreset; tmTabRound=1; tmTabPhase='work'; tmTabLeft=tmTabWork;
   renderTimer();
 }
